@@ -7,12 +7,21 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GlassCard, GlassButton } from '../components';
+import { 
+  GlassCard, 
+  GlassButton,
+  DashboardCard,
+  ActivityFeed,
+  WeatherWidget,
+  LoadingSpinner
+} from '../components';
+import type { ActivityItem } from '../components/ActivityFeed';
 import { Colors } from '../constants/Colors';
 import { Fonts } from '../constants/Fonts';
 import { Layout } from '../constants/Layout';
@@ -27,7 +36,15 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   const [user, setUser] = useState<any>(null);
   const [pets, setPets] = useState<any[]>([]);
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [stats, setStats] = useState({
+    totalTrips: 0,
+    totalDistance: 0,
+    activePets: 0,
+    upcomingBookings: 0
+  });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -48,8 +65,12 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       // Load pets
       try {
         const petsResponse = await petAPI.getAll();
-        setPets(petsResponse.data.pets || []);
-        console.log('🐕 Pets loaded:', petsResponse.data.pets?.length || 0);
+        const petsData = petsResponse.data.pets || [];
+        setPets(petsData);
+        console.log('🐕 Pets loaded:', petsData.length);
+        
+        // Update stats
+        setStats(prev => ({ ...prev, activePets: petsData.length }));
       } catch (error) {
         console.log('⚠️ Could not load pets:', error);
         setPets([]);
@@ -58,12 +79,28 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       // Load recent bookings
       try {
         const bookingsResponse = await bookingAPI.getAll({ limit: 5 });
-        setRecentBookings(bookingsResponse.data.bookings || []);
-        console.log('📋 Bookings loaded:', bookingsResponse.data.bookings?.length || 0);
+        const bookingsData = bookingsResponse.data.bookings || [];
+        setRecentBookings(bookingsData);
+        console.log('📋 Bookings loaded:', bookingsData.length);
+        
+        // Update stats
+        const totalTrips = bookingsData.filter((b: any) => b.status === 'COMPLETED').length;
+        const upcomingBookings = bookingsData.filter((b: any) => ['PENDING', 'CONFIRMED'].includes(b.status)).length;
+        const totalDistance = totalTrips * 15; // Mock calculation
+        
+        setStats(prev => ({
+          ...prev,
+          totalTrips,
+          upcomingBookings,
+          totalDistance
+        }));
       } catch (error) {
         console.log('⚠️ Could not load bookings:', error);
         setRecentBookings([]);
       }
+
+      // Generate mock activities
+      generateMockActivities();
 
     } catch (error) {
       console.error('❌ Error loading home data:', error);
@@ -71,6 +108,48 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       setLoading(false);
     }
   };
+
+  const generateMockActivities = () => {
+    const mockActivities: ActivityItem[] = [
+      {
+        id: '1',
+        type: 'booking',
+        title: 'Trip Completed',
+        description: 'Buddy was safely transported to the vet clinic',
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        icon: 'checkmark-circle',
+        iconColor: Colors.success || '#34C759',
+        actionText: 'Review',
+        onAction: () => Alert.alert('Review', 'Review functionality coming soon!')
+      },
+      {
+        id: '2',
+        type: 'pet',
+        title: 'New Pet Added',
+        description: 'Whiskers has been added to your pet family',
+        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        icon: 'heart',
+        iconColor: Colors.primary,
+      },
+      {
+        id: '3',
+        type: 'booking',
+        title: 'Booking Confirmed',
+        description: 'Your transport for tomorrow has been confirmed',
+        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        icon: 'calendar',
+        iconColor: Colors.info || '#007AFF',
+      },
+    ];
+    
+    setActivities(mockActivities);
+  };
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await loadUserData();
+    setRefreshing(false);
+  }, []);
 
   const quickActions = [
     { id: '1', title: 'Book Transport', icon: 'car', color: Colors.primary },
@@ -112,6 +191,20 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     );
   };
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="light" />
+        <LinearGradient
+          colors={[Colors.background, Colors.backgroundSecondary]}
+          style={styles.gradient}
+        >
+          <LoadingSpinner />
+        </LinearGradient>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
@@ -123,6 +216,13 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Colors.primary}
+            />
+          }
         >
           {/* Header */}
           <View style={styles.header}>
@@ -140,6 +240,51 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             <TouchableOpacity onPress={handleLogout} style={styles.profileButton}>
               <Ionicons name="person-circle" size={40} color={Colors.primary} />
             </TouchableOpacity>
+          </View>
+
+          {/* Dashboard Stats */}
+          <View style={styles.statsContainer}>
+            <DashboardCard
+              title="Total Trips"
+              value={stats.totalTrips}
+              icon="car-outline"
+              iconColor={Colors.primary}
+              trend="up"
+              trendValue="+12%"
+              onPress={() => Alert.alert('Trips', 'Trip history coming soon!')}
+            />
+            <DashboardCard
+              title="Active Pets"
+              value={stats.activePets}
+              icon="paw-outline"
+              iconColor={Colors.success || '#34C759'}
+              onPress={() => navigation.navigate('Pets')}
+            />
+          </View>
+
+          <View style={styles.statsContainer}>
+            <DashboardCard
+              title="Distance"
+              subtitle="Total miles"
+              value={`${stats.totalDistance}mi`}
+              icon="map-outline"
+              iconColor={Colors.info || '#007AFF'}
+              trend="up"
+              trendValue="+5%"
+            />
+            <DashboardCard
+              title="Upcoming"
+              subtitle="This week"
+              value={stats.upcomingBookings}
+              icon="calendar-outline"
+              iconColor={Colors.warning || '#FFA500'}
+              onPress={() => navigation.navigate('Bookings')}
+            />
+          </View>
+
+          {/* Weather Widget */}
+          <View style={styles.section}>
+            <WeatherWidget onPress={() => Alert.alert('Weather', 'Detailed weather coming soon!')} />
           </View>
 
           {/* My Pets Section */}
@@ -229,6 +374,14 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             )}
           </GlassCard>
 
+          {/* Activity Feed */}
+          <View style={styles.section}>
+            <ActivityFeed
+              activities={activities}
+              onViewAll={() => Alert.alert('Activity', 'Full activity feed coming soon!')}
+            />
+          </View>
+
           {/* Emergency Contact */}
           <GlassCard style={styles.section}>
             <View style={styles.emergencyContainer}>
@@ -301,6 +454,12 @@ const styles = StyleSheet.create({
   
   section: {
     marginBottom: Layout.spacing.lg,
+  },
+
+  statsContainer: {
+    flexDirection: 'row',
+    marginBottom: Layout.spacing.lg,
+    paddingHorizontal: Layout.spacing.xs,
   },
   
   sectionTitle: {

@@ -42,7 +42,6 @@ export const SocialButton: React.FC<SocialButtonProps> = ({
       style={[styles.container, style]}
       activeOpacity={0.8}
     >
-      <BlurView intensity={20} style={styles.blurView}>
         <View style={styles.content}>
           <Ionicons
             name={config.icon}
@@ -52,7 +51,6 @@ export const SocialButton: React.FC<SocialButtonProps> = ({
           />
           <Text style={styles.text}>{config.text}</Text>
         </View>
-      </BlurView>
     </TouchableOpacity>
   );
 };
@@ -62,12 +60,13 @@ const styles = StyleSheet.create({
     borderRadius: Layout.radius.md,
     borderWidth: 1,
     borderColor: Colors.inputBorder,
-    overflow: 'hidden',
-    marginVertical: Layout.spacing.xs,
-  },
-  
-  blurView: {
     backgroundColor: Colors.inputBackground,
+    marginVertical: Layout.spacing.xs,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
   },
   
   content: {

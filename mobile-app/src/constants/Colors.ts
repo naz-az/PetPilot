@@ -1,36 +1,41 @@
 export const Colors = {
-  // Primary Colors (matching the green theme from reference)
-  primary: '#10B981',
-  primaryDark: '#059669',
-  primaryLight: '#34D399',
+  // Primary Colors (matching the green theme from FoodNinja reference)
+  primary: '#53E88B',
+  primaryDark: '#15D153',
+  primaryLight: '#75F3A6',
   
-  // Background Colors
-  background: '#0F0F23',
-  backgroundSecondary: '#1A1A2E',
+  // Background Colors (darker like FoodNinja)
+  background: '#0D0D0D',
+  backgroundSecondary: '#252525',
+  backgroundCard: '#2A2A2A',
   
   // Text Colors
   text: '#FFFFFF',
-  textSecondary: '#A1A1AA',
-  textMuted: '#71717A',
+  textSecondary: '#FEFEFE',
+  textMuted: '#3B3B3B',
   
-  // Glass/Card Colors
-  glass: 'rgba(255, 255, 255, 0.08)',
-  glassBorder: 'rgba(255, 255, 255, 0.1)',
+  // Glass/Card Colors (more subtle like FoodNinja)
+  glass: 'rgba(37, 37, 37, 0.85)',
+  glassBorder: 'rgba(255, 255, 255, 0.08)',
   
-  // Input Colors
-  inputBackground: 'rgba(255, 255, 255, 0.05)',
-  inputBorder: 'rgba(255, 255, 255, 0.1)',
-  inputFocus: 'rgba(16, 185, 129, 0.3)',
+  // Input Colors (matching FoodNinja style)
+  inputBackground: 'rgba(37, 37, 37, 0.6)',
+  inputBorder: 'rgba(255, 255, 255, 0.08)',
+  inputFocus: 'rgba(83, 232, 139, 0.3)',
   
   // Status Colors
-  success: '#10B981',
-  error: '#EF4444',
-  warning: '#F59E0B',
-  info: '#3B82F6',
+  success: '#53E88B',
+  error: '#FF1744',
+  warning: '#FFA726',
+  info: '#29B6F6',
   
   // Social Colors
   facebook: '#1877F2',
   google: '#EA4335',
+  
+  // Additional colors from reference
+  accent: '#FF7C32',
+  accentSecondary: '#F9A84D',
   
   // Transparent
   transparent: 'transparent',

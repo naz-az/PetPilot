@@ -43,8 +43,7 @@ export const GlassInput: React.FC<GlassInputProps> = ({
         isFocused && styles.inputContainerFocused,
         error && styles.inputContainerError,
       ]}>
-        <BlurView intensity={20} style={styles.blurView}>
-          <View style={styles.inputWrapper}>
+        <View style={styles.inputWrapper}>
             {icon && (
               <Ionicons
                 name={icon}
@@ -76,7 +75,6 @@ export const GlassInput: React.FC<GlassInputProps> = ({
               </TouchableOpacity>
             )}
           </View>
-        </BlurView>
       </View>
       
       {error && <Text style={styles.errorText}>{error}</Text>}
@@ -101,24 +99,27 @@ const styles = StyleSheet.create({
     borderRadius: Layout.radius.md,
     borderWidth: 1,
     borderColor: Colors.inputBorder,
-    overflow: 'hidden',
+    backgroundColor: Colors.inputBackground,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
   },
   
   inputContainerFocused: {
     borderColor: Colors.primary,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
   },
   
   inputContainerError: {
     borderColor: Colors.error,
-  },
-  
-  blurView: {
-    backgroundColor: Colors.inputBackground,
+    shadowColor: Colors.error,
+    shadowOpacity: 0.3,
   },
   
   inputWrapper: {

@@ -35,11 +35,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.glassBorder,
     overflow: 'hidden',
-    ...Layout.shadow.medium,
+    backgroundColor: Colors.glass,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   
   blurView: {
-    backgroundColor: Colors.glass,
+    backgroundColor: 'transparent',
   },
   
   content: {

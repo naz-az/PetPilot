@@ -23,17 +23,6 @@ interface LoginScreenProps {
   navigation: any;
 }
 
-// Quick login credentials
-const QUICK_LOGIN_CREDENTIALS = {
-  petOwners: [
-    { email: 'john.doe@example.com', password: 'password123', label: 'John Doe (Pet Owner)' },
-    { email: 'sarah.smith@example.com', password: 'password123', label: 'Sarah Smith (Pet Owner)' },
-  ],
-  petPilots: [
-    { email: 'mike.johnson@example.com', password: 'password123', label: 'Mike Johnson (Pet Pilot)' },
-    { email: 'emma.wilson@example.com', password: 'password123', label: 'Emma Wilson (Pet Pilot)' },
-  ],
-};
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [email, setEmail] = useState('');
@@ -87,11 +76,6 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     }
   };
 
-  const handleQuickLogin = (credentials: { email: string; password: string; label: string }) => {
-    setEmail(credentials.email);
-    setPassword(credentials.password);
-    handleLogin(credentials.email, credentials.password);
-  };
 
   const handleSocialLogin = (provider: 'facebook' | 'google') => {
     // TODO: Implement social login
@@ -158,6 +142,25 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
               />
             </View>
 
+            {/* Quick Login for Testing */}
+            <View style={styles.quickLoginSection}>
+              <Text style={styles.quickLoginTitle}>Quick Login (Testing)</Text>
+              <View style={styles.quickLoginButtons}>
+                <TouchableOpacity 
+                  style={styles.quickLoginButton}
+                  onPress={() => handleLogin('john.doe@example.com', 'password123')}
+                >
+                  <Text style={styles.quickLoginText}>John (Owner)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.quickLoginButton}
+                  onPress={() => handleLogin('mike.johnson@example.com', 'password123')}
+                >
+                  <Text style={styles.quickLoginText}>Mike (Pilot)</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             {/* Social Login Section */}
             <View style={styles.socialSection}>
               <Text style={styles.orText}>Or Continue With</Text>
@@ -189,40 +192,6 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
               </Text>
             </View>
 
-            {/* Quick Login Section */}
-            <View style={styles.quickLoginSection}>
-              <Text style={styles.quickLoginTitle}>Quick Login (Demo)</Text>
-              
-              {/* Pet Owners */}
-              <View style={styles.quickLoginGroup}>
-                <Text style={styles.quickLoginGroupTitle}>Pet Owners</Text>
-                {QUICK_LOGIN_CREDENTIALS.petOwners.map((credential, index) => (
-                  <TouchableOpacity
-                    key={`owner-${index}`}
-                    style={styles.quickLoginButton}
-                    onPress={() => handleQuickLogin(credential)}
-                    disabled={loading}
-                  >
-                    <Text style={styles.quickLoginButtonText}>{credential.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {/* Pet Pilots */}
-              <View style={styles.quickLoginGroup}>
-                <Text style={styles.quickLoginGroupTitle}>Pet Pilots</Text>
-                {QUICK_LOGIN_CREDENTIALS.petPilots.map((credential, index) => (
-                  <TouchableOpacity
-                    key={`pilot-${index}`}
-                    style={styles.quickLoginButton}
-                    onPress={() => handleQuickLogin(credential)}
-                    disabled={loading}
-                  >
-                    <Text style={styles.quickLoginButtonText}>{credential.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </LinearGradient>
@@ -287,48 +256,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  quickLoginSection: {
-    marginTop: Layout.spacing.xl,
-    marginBottom: Layout.spacing.lg,
-  },
-
-  quickLoginTitle: {
-    fontFamily: Fonts.primary,
-    fontSize: Fonts.lg,
-    fontWeight: Fonts.semibold,
-    color: Colors.text,
-    textAlign: 'center',
-    marginBottom: Layout.spacing.md,
-  },
-
-  quickLoginGroup: {
-    marginBottom: Layout.spacing.md,
-  },
-
-  quickLoginGroupTitle: {
-    fontFamily: Fonts.primary,
-    fontSize: Fonts.regular,
-    fontWeight: Fonts.medium,
-    color: Colors.textSecondary,
-    marginBottom: Layout.spacing.sm,
-  },
-
-  quickLoginButton: {
-    backgroundColor: Colors.glass,
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: Layout.borderRadius,
-    paddingVertical: Layout.spacing.sm,
-    paddingHorizontal: Layout.spacing.md,
-    marginBottom: Layout.spacing.xs,
-  },
-
-  quickLoginButtonText: {
-    fontFamily: Fonts.primary,
-    fontSize: Fonts.regular,
-    color: Colors.text,
-    textAlign: 'center',
-  },
   
   formSection: {
     marginBottom: Layout.spacing.xl,
@@ -384,5 +311,41 @@ const styles = StyleSheet.create({
   registerLink: {
     color: Colors.primary,
     fontWeight: Fonts.semibold,
+  },
+  
+  quickLoginSection: {
+    marginBottom: Layout.spacing.lg,
+  },
+  
+  quickLoginTitle: {
+    fontFamily: Fonts.primary,
+    fontSize: Fonts.small,
+    color: Colors.textMuted,
+    textAlign: 'center' as const,
+    marginBottom: Layout.spacing.md,
+  },
+  
+  quickLoginButtons: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+  },
+  
+  quickLoginButton: {
+    flex: 1,
+    backgroundColor: Colors.inputBackground,
+    borderRadius: Layout.radius.md,
+    borderWidth: 1,
+    borderColor: Colors.inputBorder,
+    paddingVertical: Layout.spacing.sm,
+    paddingHorizontal: Layout.spacing.md,
+    marginHorizontal: Layout.spacing.xs,
+    alignItems: 'center' as const,
+  },
+  
+  quickLoginText: {
+    fontFamily: Fonts.primary,
+    fontSize: Fonts.small,
+    color: Colors.textSecondary,
+    fontWeight: Fonts.mediumWeight,
   },
 });

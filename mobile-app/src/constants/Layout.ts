@@ -59,4 +59,7 @@ export const Layout = {
     opacity: 0.08,
     borderWidth: 1,
   },
+  
+  // Default border radius
+  borderRadius: 12,
 };

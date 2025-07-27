@@ -40,12 +40,17 @@ export default function BottomTabNavigator() {
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarStyle: {
-          backgroundColor: Colors.backgroundSecondary,
+          backgroundColor: Colors.backgroundCard,
           borderTopColor: Colors.glassBorder,
           borderTopWidth: 1,
           paddingBottom: 8,
           paddingTop: 8,
           height: 70,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 10,
         },
         tabBarLabelStyle: {
           fontFamily: Fonts.primary,
