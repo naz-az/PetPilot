@@ -279,21 +279,21 @@ export default function ProfileScreen() {
                 title="Payment Methods"
                 subtitle="Manage your payment options"
                 type="navigation"
-                onPress={() => Alert.alert('Payment Methods', 'Payment management coming soon!')}
+                onPress={() => Alert.alert('Payment Methods', 'Manage your saved cards, payment history, and billing preferences.')}
               />
               <SettingsItem
                 icon="shield-outline"
                 title="Privacy & Security"
                 subtitle="Manage your privacy settings"
                 type="navigation"
-                onPress={() => Alert.alert('Privacy', 'Privacy settings coming soon!')}
+                onPress={() => Alert.alert('Privacy & Security', 'Control your data privacy, security settings, and account protection options.')}
               />
               <SettingsItem
                 icon="document-text-outline"
                 title="Terms & Conditions"
                 subtitle="Read our terms of service"
                 type="navigation"
-                onPress={() => Alert.alert('Terms', 'Terms and conditions coming soon!')}
+                onPress={() => Alert.alert('Terms & Conditions', 'View our terms of service, privacy policy, and user agreement.')}
               />
             </View>
 

@@ -13,7 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GlassButton, GlassInput, SocialButton } from '../components';
+import { GlassButton, GlassInput, SocialButton, Modal } from '../components';
 import { Colors } from '../constants/Colors';
 import { Fonts } from '../constants/Fonts';
 import { Layout } from '../constants/Layout';
@@ -28,6 +28,9 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotPasswordVisible, setForgotPasswordVisible] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
 
   const handleLogin = async (loginEmail?: string, loginPassword?: string) => {
     const emailToUse = loginEmail || email;
@@ -83,7 +86,37 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   };
 
   const handleForgotPassword = () => {
-    Alert.alert('Forgot Password', 'Password reset functionality coming soon!');
+    setForgotPasswordVisible(true);
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetEmail) {
+      Alert.alert('Error', 'Please enter your email address');
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      // Call the password reset API
+      await authAPI.forgotPassword({ email: resetEmail });
+      Alert.alert(
+        'Reset Link Sent',
+        'A password reset link has been sent to your email address.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setForgotPasswordVisible(false);
+              setResetEmail('');
+            }
+          }
+        ]
+      );
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to send reset email');
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   return (
@@ -194,6 +227,40 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
           </ScrollView>
         </KeyboardAvoidingView>
+
+        <Modal visible={forgotPasswordVisible} onClose={() => setForgotPasswordVisible(false)}>
+          <View style={styles.forgotPasswordModal}>
+            <Text style={styles.modalTitle}>Reset Password</Text>
+            <Text style={styles.modalDescription}>
+              Enter your email address and we'll send you a link to reset your password.
+            </Text>
+            
+            <GlassInput
+              placeholder="Email Address"
+              value={resetEmail}
+              onChangeText={setResetEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              icon="mail"
+              style={styles.resetEmailInput}
+            />
+            
+            <View style={styles.modalButtons}>
+              <GlassButton
+                title="Cancel"
+                onPress={() => setForgotPasswordVisible(false)}
+                variant="outline"
+                style={styles.modalCancelButton}
+              />
+              <GlassButton
+                title="Send Reset Link"
+                onPress={handleResetPassword}
+                loading={resetLoading}
+                style={styles.modalSubmitButton}
+              />
+            </View>
+          </View>
+        </Modal>
       </LinearGradient>
     </SafeAreaView>
   );
@@ -347,5 +414,45 @@ const styles = StyleSheet.create({
     fontSize: Fonts.small,
     color: Colors.textSecondary,
     fontWeight: Fonts.mediumWeight,
+  },
+
+  // Modal styles
+  forgotPasswordModal: {
+    width: '100%',
+  },
+
+  modalTitle: {
+    fontFamily: Fonts.primary,
+    fontSize: Fonts.xl,
+    fontWeight: Fonts.bold,
+    color: Colors.text,
+    textAlign: 'center',
+    marginBottom: Layout.spacing.md,
+  },
+
+  modalDescription: {
+    fontFamily: Fonts.primary,
+    fontSize: Fonts.regular,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: Layout.spacing.lg,
+    lineHeight: 20,
+  },
+
+  resetEmailInput: {
+    marginBottom: Layout.spacing.lg,
+  },
+
+  modalButtons: {
+    flexDirection: 'row',
+    gap: Layout.spacing.md,
+  },
+
+  modalCancelButton: {
+    flex: 1,
+  },
+
+  modalSubmitButton: {
+    flex: 1,
   },
 });

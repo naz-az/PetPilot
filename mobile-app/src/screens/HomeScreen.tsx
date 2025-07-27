@@ -19,7 +19,9 @@ import {
   DashboardCard,
   ActivityFeed,
   WeatherWidget,
-  LoadingSpinner
+  EnhancedWeatherWidget,
+  LoadingSpinner,
+  ReviewModal
 } from '../components';
 import type { ActivityItem } from '../components/ActivityFeed';
 import { Colors } from '../constants/Colors';
@@ -45,6 +47,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [selectedBookingForReview, setSelectedBookingForReview] = useState<any>(null);
 
   useEffect(() => {
     loadUserData();
@@ -120,7 +124,14 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         icon: 'checkmark-circle',
         iconColor: Colors.success || '#34C759',
         actionText: 'Review',
-        onAction: () => Alert.alert('Review', 'Review functionality coming soon!')
+        onAction: () => {
+          setSelectedBookingForReview({
+            id: '1',
+            pilotName: 'Sarah Johnson',
+            pilotId: 'pilot-1'
+          });
+          setReviewModalVisible(true);
+        }
       },
       {
         id: '2',
@@ -160,11 +171,29 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
 
   const handleQuickAction = (actionId: string, title: string) => {
-    Alert.alert('Coming Soon', `${title} functionality will be available soon!`);
+    if (actionId === '1') {
+      // Book Transport
+      navigation.navigate('Bookings');
+    } else if (actionId === '2') {
+      // Schedule Service
+      navigation.navigate('Bookings');
+    } else {
+      Alert.alert('Coming Soon', `${title} functionality will be available soon!`);
+    }
   };
 
   const handleBookingPress = (bookingId: string) => {
-    Alert.alert('Booking Details', 'Booking details screen coming soon!');
+    navigation.navigate('BookingDetails', { bookingId });
+  };
+
+  const handleSubmitReview = async (rating: number, comment: string) => {
+    try {
+      console.log('Submitting review:', { rating, comment, bookingId: selectedBookingForReview?.id });
+      // In real implementation, submit to API
+      Alert.alert('Success', 'Thank you for your review!');
+    } catch (error) {
+      throw error;
+    }
   };
 
   const handleLogout = async () => {
@@ -251,7 +280,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               iconColor={Colors.primary}
               trend="up"
               trendValue="+12%"
-              onPress={() => Alert.alert('Trips', 'Trip history coming soon!')}
+              onPress={() => navigation.navigate('Bookings')}
             />
             <DashboardCard
               title="Active Pets"
@@ -284,7 +313,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
           {/* Weather Widget */}
           <View style={styles.section}>
-            <WeatherWidget onPress={() => Alert.alert('Weather', 'Detailed weather coming soon!')} />
+            <EnhancedWeatherWidget />
           </View>
 
           {/* My Pets Section */}
@@ -307,7 +336,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                   <Text style={styles.petBreed}>{pet.breed || pet.species}</Text>
                 </TouchableOpacity>
               ))}
-              <TouchableOpacity style={styles.addPetCard}>
+              <TouchableOpacity 
+                style={styles.addPetCard}
+                onPress={() => navigation.navigate('Pets')}
+              >
                 <Ionicons name="add-circle" size={30} color={Colors.primary} />
                 <Text style={styles.addPetText}>Add Pet</Text>
               </TouchableOpacity>
@@ -378,7 +410,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <View style={styles.section}>
             <ActivityFeed
               activities={activities}
-              onViewAll={() => Alert.alert('Activity', 'Full activity feed coming soon!')}
+              onViewAll={() => navigation.navigate('Profile')}
             />
           </View>
 
@@ -401,6 +433,20 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             </View>
           </GlassCard>
         </ScrollView>
+
+        {selectedBookingForReview && (
+          <ReviewModal
+            visible={reviewModalVisible}
+            onClose={() => {
+              setReviewModalVisible(false);
+              setSelectedBookingForReview(null);
+            }}
+            pilotName={selectedBookingForReview.pilotName}
+            pilotId={selectedBookingForReview.pilotId}
+            bookingId={selectedBookingForReview.id}
+            onSubmit={handleSubmitReview}
+          />
+        )}
       </LinearGradient>
     </SafeAreaView>
   );

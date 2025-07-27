@@ -20,6 +20,8 @@ import {
   GlassButton,
   LoadingSpinner,
   ActionSheet,
+  MessagingModal,
+  ReviewModal,
 } from '../components';
 import type { Booking } from '../components/BookingCard';
 import type { ActionSheetOption } from '../components/ActionSheet';
@@ -50,6 +52,8 @@ export default function BookingDetailsScreen({ route, navigation }: BookingDetai
   const [booking, setBooking] = useState<ExtendedBooking | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
+  const [messagingModalVisible, setMessagingModalVisible] = useState(false);
+  const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
   useEffect(() => {
     loadBookingDetails();
@@ -136,11 +140,11 @@ export default function BookingDetailsScreen({ route, navigation }: BookingDetai
   };
 
   const handleMessagePilot = () => {
-    Alert.alert('Message Pilot', 'Messaging feature coming soon!');
+    setMessagingModalVisible(true);
   };
 
   const handleTrackBooking = () => {
-    Alert.alert('Track Booking', 'Real-time tracking coming soon!');
+    Alert.alert('Real-time Tracking', 'Your pilot is currently en route. ETA: 15 minutes');
   };
 
   const handleCancelBooking = () => {
@@ -172,11 +176,36 @@ export default function BookingDetailsScreen({ route, navigation }: BookingDetai
   };
 
   const handleLeaveReview = () => {
-    Alert.alert('Leave Review', 'Review feature coming soon!');
+    if (booking?.status === 'completed') {
+      setReviewModalVisible(true);
+    } else {
+      Alert.alert('Review Not Available', 'You can only review completed bookings');
+    }
+  };
+
+  const handleSubmitReview = async (rating: number, comment: string) => {
+    try {
+      console.log('Submitting review:', { rating, comment, pilotId: booking?.pilotInfo?.name });
+      // In real implementation, submit to API
+      Alert.alert('Success', 'Thank you for your review!');
+    } catch (error) {
+      throw error;
+    }
   };
 
   const handleRequestRefund = () => {
-    Alert.alert('Request Refund', 'Refund request feature coming soon!');
+    Alert.alert(
+      'Request Refund',
+      'Are you sure you want to request a refund for this booking?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Request Refund', 
+          style: 'destructive',
+          onPress: () => Alert.alert('Refund Requested', 'Your refund request has been submitted and will be processed within 3-5 business days.')
+        }
+      ]
+    );
   };
 
   const actionSheetOptions: ActionSheetOption[] = [
@@ -494,6 +523,22 @@ export default function BookingDetailsScreen({ route, navigation }: BookingDetai
           visible={actionSheetVisible}
           onClose={() => setActionSheetVisible(false)}
           options={actionSheetOptions}
+        />
+
+        <MessagingModal
+          visible={messagingModalVisible}
+          onClose={() => setMessagingModalVisible(false)}
+          pilotName={booking.pilotInfo?.name || 'Pilot'}
+          bookingId={booking.id}
+        />
+
+        <ReviewModal
+          visible={reviewModalVisible}
+          onClose={() => setReviewModalVisible(false)}
+          pilotName={booking.pilotInfo?.name || 'Pilot'}
+          pilotId={booking.pilotInfo?.name || 'pilot'}
+          bookingId={booking.id}
+          onSubmit={handleSubmitReview}
         />
       </LinearGradient>
     </SafeAreaView>

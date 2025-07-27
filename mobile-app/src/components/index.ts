@@ -27,6 +27,12 @@ export {
   SaveConfirmationDialog
 } from './ConfirmationDialog';
 
+// Enhanced components
+export { MessagingModal } from './MessagingModal';
+export { ReviewModal } from './ReviewModal';
+export { MedicalHistoryModal } from './MedicalHistoryModal';
+export { EnhancedWeatherWidget } from './EnhancedWeatherWidget';
+
 // Re-export types
 export type { ActionSheetOption } from './ActionSheet';
 export type { Pet } from './PetCard';

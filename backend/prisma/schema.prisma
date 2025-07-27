@@ -22,11 +22,26 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // New fields for enhanced features
+  dateOfBirth      DateTime?
+  address          String?
+  emergencyContact String?
+  preferences      Json?     // Store user preferences as JSON
+  lastLogin        DateTime?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
   // Pet Owner relationships
   pets        Pet[]
   bookings    Booking[]
   reviews     Review[]
   favorites   Favorite[]
+  payments    Payment[]
+  
+  // New relationships
+  socialAccounts   SocialAccount[]
+  notifications    Notification[]
+  activityLogs     ActivityLog[]
 
   // Pet Pilot relationships
   pilotProfile     PilotProfile?
@@ -57,9 +72,24 @@ model Pet {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  // Medical information
+  microchipId      String?
+  vaccinations     Json?      // Store vaccination records as JSON
+  allergies        String[]   // Array of allergies
+  medications      String[]   // Array of current medications
+  vetContact       String?    // Primary vet contact info
+  emergencyVet     String?    // Emergency vet contact
+  medicalNotes     String?    // General medical notes
+  lastVetVisit     DateTime?  // Last vet visit date
+  nextVetVisit     DateTime?  // Next scheduled vet visit
+
   ownerId  String
   owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   bookings Booking[]
+  
+  // New relationships
+  medicalRecords   MedicalRecord[]
+  vetAppointments  VetAppointment[]
 
   @@map("pets")
 }
@@ -173,6 +203,7 @@ model Booking {
   services BookingService[]
   tracking BookingTracking[]
   messages BookingMessage[]
+  payment  Payment?
 
   @@map("bookings")
 }
@@ -250,4 +281,156 @@ model Favorite {
 
   @@unique([userId, pilotId])
   @@map("favorites")
+}
+
+// New models for enhanced features
+
+model SocialAccount {
+  id         String   @id @default(cuid())
+  provider   String   // 'google', 'facebook', 'apple'
+  providerId String   // ID from the social provider
+  email      String?
+  name       String?
+  avatar     String?
+  createdAt  DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@map("social_accounts")
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  amount         Float
+  currency       String        @default("USD")
+  status         PaymentStatus @default(PENDING)
+  paymentMethod  String        // 'card', 'apple_pay', 'google_pay', etc.
+  paymentIntent  String?       // Stripe payment intent ID
+  refundAmount   Float?
+  refundReason   String?
+  processedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  bookingId String?  @unique
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  title     String
+  message   String
+  type      NotificationType
+  data      Json?            // Additional data for the notification
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  BOOKING_UPDATE
+  PAYMENT_RECEIVED
+  REVIEW_RECEIVED
+  PILOT_ARRIVED
+  MESSAGE_RECEIVED
+  SYSTEM_ALERT
+  PROMOTIONAL
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String   // 'booking_created', 'payment_made', 'review_left', etc.
+  details   Json?    // Additional details about the action
+  timestamp DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}
+
+model MedicalRecord {
+  id          String   @id @default(cuid())
+  title       String   // e.g., "Annual Checkup", "Vaccination", "Surgery"
+  description String?
+  diagnosis   String?
+  treatment   String?
+  medications String[] // Prescribed medications
+  cost        Float?
+  vetName     String?
+  vetClinic   String?
+  documents   String[] // URLs to medical documents/images
+  visitDate   DateTime
+  nextVisit   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  petId String
+  pet   Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("medical_records")
+}
+
+model VetAppointment {
+  id          String            @id @default(cuid())
+  title       String
+  description String?
+  appointmentDate DateTime
+  duration    Int?              // Duration in minutes
+  status      AppointmentStatus @default(SCHEDULED)
+  vetName     String
+  vetClinic   String
+  vetPhone    String?
+  address     String?
+  notes       String?
+  reminder    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  petId String
+  pet   Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("vet_appointments")
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model WeatherData {
+  id          String   @id @default(cuid())
+  location    String   // City name or coordinates
+  temperature Float
+  humidity    Float
+  description String   // Weather description
+  icon        String   // Weather icon code
+  windSpeed   Float?
+  uvIndex     Float?
+  timestamp   DateTime @default(now())
+
+  @@map("weather_data")
 }

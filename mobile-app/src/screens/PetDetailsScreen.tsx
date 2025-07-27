@@ -21,6 +21,7 @@ import {
   LoadingSpinner,
   PetFormModal,
   ActionSheet,
+  MedicalHistoryModal,
 } from '../components';
 import type { Pet } from '../components/PetCard';
 import type { ActionSheetOption } from '../components/ActionSheet';
@@ -37,6 +38,7 @@ export default function PetDetailsScreen({ route, navigation }: PetDetailsScreen
   const [loading, setLoading] = useState(true);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [actionSheetVisible, setActionSheetVisible] = useState(false);
+  const [medicalHistoryVisible, setMedicalHistoryVisible] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
 
   useEffect(() => {
@@ -116,11 +118,12 @@ export default function PetDetailsScreen({ route, navigation }: PetDetailsScreen
   };
 
   const handleViewMedicalHistory = () => {
-    Alert.alert('Medical History', 'Medical history feature coming soon!');
+    setMedicalHistoryVisible(true);
   };
 
   const handleScheduleVetVisit = () => {
-    Alert.alert('Schedule Visit', 'Vet scheduling feature coming soon!');
+    // Open medical history modal with appointments tab active
+    setMedicalHistoryVisible(true);
   };
 
   const actionSheetOptions: ActionSheetOption[] = [
@@ -399,6 +402,15 @@ export default function PetDetailsScreen({ route, navigation }: PetDetailsScreen
             onSubmit={handleSavePet}
             editingPet={pet}
             loading={editLoading}
+          />
+        )}
+
+        {pet && (
+          <MedicalHistoryModal
+            visible={medicalHistoryVisible}
+            onClose={() => setMedicalHistoryVisible(false)}
+            petId={pet.id}
+            petName={pet.name}
           />
         )}
       </LinearGradient>

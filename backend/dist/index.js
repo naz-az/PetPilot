@@ -14,6 +14,12 @@ const auth_1 = __importDefault(require("./routes/auth"));
 const users_1 = __importDefault(require("./routes/users"));
 const pets_1 = __importDefault(require("./routes/pets"));
 const bookings_1 = __importDefault(require("./routes/bookings"));
+const messages_1 = __importDefault(require("./routes/messages"));
+const reviews_1 = __importDefault(require("./routes/reviews"));
+const payments_1 = __importDefault(require("./routes/payments"));
+const medical_1 = __importDefault(require("./routes/medical"));
+const weather_1 = __importDefault(require("./routes/weather"));
+const activity_1 = __importDefault(require("./routes/activity"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const prisma = new client_1.PrismaClient();
@@ -48,6 +54,12 @@ app.use('/api/auth', auth_1.default);
 app.use('/api/users', users_1.default);
 app.use('/api/pets', pets_1.default);
 app.use('/api/bookings', bookings_1.default);
+app.use('/api/messages', messages_1.default);
+app.use('/api/reviews', reviews_1.default);
+app.use('/api/payments', payments_1.default);
+app.use('/api/medical', medical_1.default);
+app.use('/api/weather', weather_1.default);
+app.use('/api/activity', activity_1.default);
 // 404 handler
 app.use('*', (req, res) => {
     res.status(404).json({

@@ -10,6 +10,12 @@ import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import petRoutes from './routes/pets';
 import bookingRoutes from './routes/bookings';
+import messageRoutes from './routes/messages';
+import reviewRoutes from './routes/reviews';
+import paymentRoutes from './routes/payments';
+import medicalRoutes from './routes/medical';
+import weatherRoutes from './routes/weather';
+import activityRoutes from './routes/activity';
 
 dotenv.config();
 
@@ -51,6 +57,12 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/pets', petRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/medical', medicalRoutes);
+app.use('/api/weather', weatherRoutes);
+app.use('/api/activity', activityRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
