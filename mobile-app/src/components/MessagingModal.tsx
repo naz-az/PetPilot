@@ -297,6 +297,31 @@ const styles = StyleSheet.create({
 
   messagesContent: {
     paddingVertical: Layout.spacing.sm,
+    flexGrow: 1,
+  },
+
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: Layout.spacing.xl,
+  },
+
+  emptyStateText: {
+    fontFamily: Fonts.primary,
+    fontSize: Fonts.large,
+    color: Colors.textSecondary,
+    marginTop: Layout.spacing.md,
+    textAlign: 'center',
+  },
+
+  emptyStateSubtext: {
+    fontFamily: Fonts.primary,
+    fontSize: Fonts.regular,
+    color: Colors.textSecondary,
+    marginTop: Layout.spacing.xs,
+    textAlign: 'center',
+    opacity: 0.7,
   },
 
   messageContainer: {
@@ -358,12 +383,14 @@ const styles = StyleSheet.create({
   },
 
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginTop: Layout.spacing.lg,
     paddingTop: Layout.spacing.md,
     borderTopWidth: 1,
     borderTopColor: Colors.glassBorder,
+  },
+
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
   },
 
   textInput: {

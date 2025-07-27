@@ -5,6 +5,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 import BottomTabNavigator from './BottomTabNavigator';
 import PetDetailsScreen from '../screens/PetDetailsScreen';
 import BookingDetailsScreen from '../screens/BookingDetailsScreen';
+import FindPilotsScreen from '../screens/FindPilotsScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -12,6 +13,7 @@ export type RootStackParamList = {
   Home: undefined;
   PetDetails: { petId: string };
   BookingDetails: { bookingId: string };
+  FindPilots: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -24,6 +26,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Home" component={BottomTabNavigator} />
       <Stack.Screen name="PetDetails" component={PetDetailsScreen} />
       <Stack.Screen name="BookingDetails" component={BookingDetailsScreen} />
+      <Stack.Screen name="FindPilots" component={FindPilotsScreen} />
     </Stack.Navigator>
   );
 }

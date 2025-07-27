@@ -101,14 +101,15 @@ export default function BookingFormModal({
 
   return (
     <Modal visible={visible} onClose={handleClose}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Book Service</Text>
-        <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-          <Ionicons name="close" size={24} color={Colors.text} />
-        </TouchableOpacity>
-      </View>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Book Service</Text>
+          <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+            <Ionicons name="close" size={24} color={Colors.text} />
+          </TouchableOpacity>
+        </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.serviceInfo}>
           <View style={styles.serviceHeader}>
             <Ionicons name={service.icon} size={24} color={Colors.primary} />
@@ -219,12 +220,18 @@ export default function BookingFormModal({
           disabled={pets.length === 0 || loading}
           style={styles.submitButton}
         />
+        </View>
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    maxHeight: Layout.window.height * 0.9,
+  },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

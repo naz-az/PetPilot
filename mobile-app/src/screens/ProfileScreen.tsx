@@ -17,6 +17,8 @@ import {
   SettingsItem,
   ProfileEditModal,
   LoadingSpinner,
+  PaymentMethodsModal,
+  PrivacySecurityModal,
 } from '../components';
 import { Colors } from '../constants/Colors';
 import { Fonts } from '../constants/Fonts';
@@ -29,6 +31,8 @@ export default function ProfileScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [privacyModalVisible, setPrivacyModalVisible] = useState(false);
   
   // Settings state
   const [notifications, setNotifications] = useState(true);
@@ -279,14 +283,14 @@ export default function ProfileScreen() {
                 title="Payment Methods"
                 subtitle="Manage your payment options"
                 type="navigation"
-                onPress={() => Alert.alert('Payment Methods', 'Manage your saved cards, payment history, and billing preferences.')}
+                onPress={() => setPaymentModalVisible(true)}
               />
               <SettingsItem
                 icon="shield-outline"
                 title="Privacy & Security"
                 subtitle="Manage your privacy settings"
                 type="navigation"
-                onPress={() => Alert.alert('Privacy & Security', 'Control your data privacy, security settings, and account protection options.')}
+                onPress={() => setPrivacyModalVisible(true)}
               />
               <SettingsItem
                 icon="document-text-outline"
@@ -342,6 +346,16 @@ export default function ProfileScreen() {
           onSave={handleSaveProfile}
           profile={profile}
           loading={editLoading}
+        />
+
+        <PaymentMethodsModal
+          visible={paymentModalVisible}
+          onClose={() => setPaymentModalVisible(false)}
+        />
+
+        <PrivacySecurityModal
+          visible={privacyModalVisible}
+          onClose={() => setPrivacyModalVisible(false)}
         />
       </LinearGradient>
     </SafeAreaView>

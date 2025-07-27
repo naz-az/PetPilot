@@ -19,6 +19,7 @@ import {
   BookingFormModal,
   EmptyState,
   LoadingSpinner,
+  CalendarView,
 } from '../components';
 import { Colors } from '../constants/Colors';
 import { Fonts } from '../constants/Fonts';
@@ -100,6 +101,8 @@ export default function BookingsScreen({ navigation }: BookingsScreenProps) {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [bookingModalVisible, setBookingModalVisible] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
     loadData();
@@ -120,12 +123,20 @@ export default function BookingsScreen({ navigation }: BookingsScreenProps) {
       setPets(mockPets);
       
       // Load user's bookings (mock data for now)
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
+      const lastWeek = new Date(today);
+      lastWeek.setDate(today.getDate() - 7);
+
       const mockBookings: Booking[] = [
         {
           id: '1',
           serviceName: 'Vet Visit',
           petName: 'Buddy',
-          date: '2024-01-15',
+          date: today.toISOString().split('T')[0],
           time: '10:00 AM',
           status: 'confirmed',
           price: 35,
@@ -137,12 +148,36 @@ export default function BookingsScreen({ navigation }: BookingsScreenProps) {
           id: '2',
           serviceName: 'Pet Transport',
           petName: 'Whiskers',
-          date: '2024-01-20',
+          date: tomorrow.toISOString().split('T')[0],
           time: '2:30 PM',
           status: 'pending',
           price: 25,
           pickupAddress: '123 Main St, City',
           dropoffAddress: '789 Park Blvd, City',
+        },
+        {
+          id: '3',
+          serviceName: 'Grooming Transport',
+          petName: 'Buddy',
+          date: nextWeek.toISOString().split('T')[0],
+          time: '11:00 AM',
+          status: 'confirmed',
+          price: 30,
+          pickupAddress: '123 Main St, City',
+          dropoffAddress: 'Pet Spa & Grooming, 321 Elm St',
+          notes: 'Monthly grooming session',
+        },
+        {
+          id: '4',
+          serviceName: 'Emergency Transport',
+          petName: 'Whiskers',
+          date: lastWeek.toISOString().split('T')[0],
+          time: '3:15 PM',
+          status: 'completed',
+          price: 50,
+          pickupAddress: '123 Main St, City',
+          dropoffAddress: 'Emergency Vet Clinic, 555 Rush Ave',
+          notes: 'Emergency visit - recovered well',
         },
       ];
       setBookings(mockBookings);
@@ -224,6 +259,32 @@ export default function BookingsScreen({ navigation }: BookingsScreenProps) {
     }
   };
 
+  // Calendar event conversion
+  const getCalendarEvents = () => {
+    return bookings.map(booking => ({
+      id: booking.id,
+      date: booking.date,
+      title: `${booking.serviceName} - ${booking.petName}`,
+      type: 'booking' as const,
+      status: booking.status,
+    }));
+  };
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+  };
+
+  const handleEventPress = (event: any) => {
+    const booking = bookings.find(b => b.id === event.id);
+    if (booking) {
+      Alert.alert(
+        booking.serviceName,
+        `Pet: ${booking.petName}\nTime: ${booking.time}\nStatus: ${booking.status}\n\nPickup: ${booking.pickupAddress}\nDrop-off: ${booking.dropoffAddress}`,
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   const handleCancelBooking = (booking: Booking) => {
     Alert.alert(
       'Cancel Booking',
@@ -288,17 +349,60 @@ export default function BookingsScreen({ navigation }: BookingsScreenProps) {
     </View>
   );
 
+  const renderViewToggle = () => (
+    <View style={styles.viewToggle}>
+      <TouchableOpacity
+        style={[styles.viewToggleButton, viewMode === 'list' && styles.activeViewToggleButton]}
+        onPress={() => setViewMode('list')}
+      >
+        <Ionicons
+          name="list-outline"
+          size={18}
+          color={viewMode === 'list' ? Colors.primary : Colors.textSecondary}
+        />
+        <Text style={[styles.viewToggleText, viewMode === 'list' && styles.activeViewToggleText]}>
+          List
+        </Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={[styles.viewToggleButton, viewMode === 'calendar' && styles.activeViewToggleButton]}
+        onPress={() => setViewMode('calendar')}
+      >
+        <Ionicons
+          name="calendar-outline"
+          size={18}
+          color={viewMode === 'calendar' ? Colors.primary : Colors.textSecondary}
+        />
+        <Text style={[styles.viewToggleText, viewMode === 'calendar' && styles.activeViewToggleText]}>
+          Calendar
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   const renderBookings = () => (
     <View style={styles.tabContent}>
+      {renderViewToggle()}
+      
       {bookings.length > 0 ? (
-        bookings.map((booking) => (
-          <BookingCard
-            key={booking.id}
-            booking={booking}
-            onPress={handleViewBookingDetails}
-            onCancel={handleCancelBooking}
+        viewMode === 'list' ? (
+          bookings.map((booking) => (
+            <BookingCard
+              key={booking.id}
+              booking={booking}
+              onPress={handleViewBookingDetails}
+              onCancel={handleCancelBooking}
+            />
+          ))
+        ) : (
+          <CalendarView
+            events={getCalendarEvents()}
+            selectedDate={selectedDate}
+            onDateSelect={handleDateSelect}
+            onEventPress={handleEventPress}
           />
-        ))
+        )
       ) : (
         <EmptyState
           icon="calendar-outline"
@@ -427,5 +531,42 @@ const styles = StyleSheet.create({
   tabContent: {
     paddingHorizontal: Layout.spacing.lg,
     paddingBottom: Layout.spacing.xl,
+  },
+
+  viewToggle: {
+    flexDirection: 'row',
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: Layout.radius.md,
+    padding: 4,
+    marginBottom: Layout.spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+  },
+
+  viewToggleButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Layout.spacing.sm,
+    paddingHorizontal: Layout.spacing.sm,
+    borderRadius: Layout.radius.sm,
+  },
+
+  activeViewToggleButton: {
+    backgroundColor: Colors.primary + '20',
+  },
+
+  viewToggleText: {
+    fontFamily: Fonts.primary,
+    fontSize: Fonts.small,
+    color: Colors.textSecondary,
+    marginLeft: 6,
+    fontWeight: Fonts.mediumWeight,
+  },
+
+  activeViewToggleText: {
+    color: Colors.primary,
+    fontWeight: Fonts.semibold,
   },
 });

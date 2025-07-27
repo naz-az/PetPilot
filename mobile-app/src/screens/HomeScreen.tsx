@@ -177,6 +177,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     } else if (actionId === '2') {
       // Schedule Service
       navigation.navigate('Bookings');
+    } else if (actionId === '3') {
+      // Find Pilots
+      navigation.navigate('FindPilots');
     } else {
       Alert.alert('Coming Soon', `${title} functionality will be available soon!`);
     }

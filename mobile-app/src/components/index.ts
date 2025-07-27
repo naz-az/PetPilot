@@ -32,6 +32,9 @@ export { MessagingModal } from './MessagingModal';
 export { ReviewModal } from './ReviewModal';
 export { MedicalHistoryModal } from './MedicalHistoryModal';
 export { EnhancedWeatherWidget } from './EnhancedWeatherWidget';
+export { PaymentMethodsModal } from './PaymentMethodsModal';
+export { PrivacySecurityModal } from './PrivacySecurityModal';
+export { CalendarView } from './CalendarView';
 
 // Re-export types
 export type { ActionSheetOption } from './ActionSheet';
