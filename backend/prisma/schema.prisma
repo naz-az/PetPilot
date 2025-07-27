@@ -1,0 +1,253 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  username    String?  @unique
+  password    String
+  firstName   String?
+  lastName    String?
+  phone       String?
+  avatar      String?
+  userType    UserType @default(PET_OWNER)
+  isVerified  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Pet Owner relationships
+  pets        Pet[]
+  bookings    Booking[]
+  reviews     Review[]
+  favorites   Favorite[]
+
+  // Pet Pilot relationships
+  pilotProfile     PilotProfile?
+  acceptedBookings Booking[] @relation("PilotBookings")
+  receivedReviews  Review[]  @relation("PilotReviews")
+
+  @@map("users")
+}
+
+enum UserType {
+  PET_OWNER
+  PET_PILOT
+  ADMIN
+}
+
+model Pet {
+  id          String    @id @default(cuid())
+  name        String
+  species     String
+  breed       String?
+  age         Int?
+  weight      Float?
+  size        PetSize
+  color       String?
+  photo       String?
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  ownerId  String
+  owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@map("pets")
+}
+
+enum PetSize {
+  SMALL
+  MEDIUM
+  LARGE
+  EXTRA_LARGE
+}
+
+model PilotProfile {
+  id              String   @id @default(cuid())
+  bio             String?
+  experience      String?
+  vehicleType     String
+  vehicleModel    String?
+  licensePlate    String
+  serviceRadius   Float    @default(10.0)
+  hourlyRate      Float?
+  isAvailable     Boolean  @default(true)
+  isVerified      Boolean  @default(false)
+  rating          Float    @default(0.0)
+  completedTrips  Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId   String @unique
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  services        PilotService[]
+  availabilities  PilotAvailability[]
+
+  @@map("pilot_profiles")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  basePrice   Float?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  pilotServices   PilotService[]
+  bookingServices BookingService[]
+
+  @@map("services")
+}
+
+model PilotService {
+  id        String   @id @default(cuid())
+  price     Float
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pilotId   String
+  pilot     PilotProfile @relation(fields: [pilotId], references: [id], onDelete: Cascade)
+  serviceId String
+  service   Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([pilotId, serviceId])
+  @@map("pilot_services")
+}
+
+model PilotAvailability {
+  id        String    @id @default(cuid())
+  dayOfWeek Int       // 0-6 (Sunday to Saturday)
+  startTime String    // HH:mm format
+  endTime   String    // HH:mm format
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  pilotId String
+  pilot   PilotProfile @relation(fields: [pilotId], references: [id], onDelete: Cascade)
+
+  @@map("pilot_availabilities")
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  pickupLocation  String
+  dropoffLocation String
+  pickupLat       Float?
+  pickupLng       Float?
+  dropoffLat      Float?
+  dropoffLng      Float?
+  scheduledTime   DateTime
+  estimatedPrice  Float
+  finalPrice      Float?
+  distance        Float?
+  duration        Int?          // in minutes
+  status          BookingStatus @default(PENDING)
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  petOwnerId String
+  petOwner   User   @relation(fields: [petOwnerId], references: [id])
+  
+  pilotId String?
+  pilot   User?   @relation("PilotBookings", fields: [pilotId], references: [id])
+
+  petId String
+  pet   Pet    @relation(fields: [petId], references: [id])
+
+  services BookingService[]
+  tracking BookingTracking[]
+  messages BookingMessage[]
+
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  EN_ROUTE_TO_PICKUP
+  PET_PICKED_UP
+  EN_ROUTE_TO_DESTINATION
+  COMPLETED
+  CANCELLED
+}
+
+model BookingService {
+  id        String   @id @default(cuid())
+  price     Float
+  createdAt DateTime @default(now())
+
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  @@map("booking_services")
+}
+
+model BookingTracking {
+  id        String   @id @default(cuid())
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("booking_tracking")
+}
+
+model BookingMessage {
+  id        String   @id @default(cuid())
+  message   String
+  isFromPilot Boolean
+  timestamp DateTime @default(now())
+
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("booking_messages")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviewerId String
+  reviewer   User   @relation(fields: [reviewerId], references: [id])
+
+  pilotId String
+  pilot   User   @relation("PilotReviews", fields: [pilotId], references: [id])
+
+  @@map("reviews")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pilotId String
+
+  @@unique([userId, pilotId])
+  @@map("favorites")
+}

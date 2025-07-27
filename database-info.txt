@@ -1,0 +1,3 @@
+docker run --name petpilot-postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=petpilot_db -p 5470:5432 -d postgres
+
+docker exec -it petpilot-postgres psql -U postgres -d petpilot_db -c "\dt"
