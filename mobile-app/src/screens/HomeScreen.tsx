@@ -21,7 +21,8 @@ import {
   WeatherWidget,
   EnhancedWeatherWidget,
   LoadingSpinner,
-  ReviewModal
+  ReviewModal,
+  ProfileDropdown
 } from '../components';
 import type { ActivityItem } from '../components/ActivityFeed';
 import { Colors } from '../constants/Colors';
@@ -62,6 +63,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       const userData = await AsyncStorage.getItem('user');
       if (userData) {
         const parsedUser = JSON.parse(userData);
+        // Add avatar if not present
+        if (!parsedUser.avatar) {
+          parsedUser.avatar = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face';
+        }
         setUser(parsedUser);
         console.log('👤 Current user:', parsedUser);
       }
@@ -258,7 +263,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         >
           {/* Header */}
           <View style={styles.header}>
-            <View>
+            <View style={styles.userSection}>
               <Text style={styles.greeting}>Good Morning!</Text>
               <Text style={styles.userName}>
                 {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
@@ -269,9 +274,11 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                 </Text>
               )}
             </View>
-            <TouchableOpacity onPress={handleLogout} style={styles.profileButton}>
-              <Ionicons name="person-circle" size={40} color={Colors.primary} />
-            </TouchableOpacity>
+            <ProfileDropdown
+              user={user}
+              onProfile={() => navigation.navigate('Profile')}
+              onLogout={handleLogout}
+            />
           </View>
 
           {/* Dashboard Stats */}
@@ -315,7 +322,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           </View>
 
           {/* Weather Widget */}
-          <View style={styles.section}>
+          <View style={[styles.section, styles.weatherSection]}>
             <EnhancedWeatherWidget />
           </View>
 
@@ -476,6 +483,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Layout.spacing.xl,
   },
+
+  userSection: {
+    flex: 1,
+  },
   
   greeting: {
     fontFamily: Fonts.primary,
@@ -497,9 +508,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   
-  profileButton: {
-    padding: Layout.spacing.xs,
-  },
   
   section: {
     marginBottom: Layout.spacing.lg,
@@ -507,8 +515,11 @@ const styles = StyleSheet.create({
 
   statsContainer: {
     flexDirection: 'row',
-    marginBottom: Layout.spacing.lg,
     paddingHorizontal: Layout.spacing.xs,
+  },
+
+  weatherSection: {
+    marginTop: Layout.spacing.lg,
   },
   
   sectionTitle: {

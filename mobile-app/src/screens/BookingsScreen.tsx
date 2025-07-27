@@ -277,31 +277,47 @@ export default function BookingsScreen({ navigation }: BookingsScreenProps) {
   const handleEventPress = (event: any) => {
     const booking = bookings.find(b => b.id === event.id);
     if (booking) {
-      Alert.alert(
-        booking.serviceName,
-        `Pet: ${booking.petName}\nTime: ${booking.time}\nStatus: ${booking.status}\n\nPickup: ${booking.pickupAddress}\nDrop-off: ${booking.dropoffAddress}`,
-        [{ text: 'OK' }]
-      );
+      navigation.navigate('BookingDetails', { bookingId: booking.id });
     }
   };
 
   const handleCancelBooking = (booking: Booking) => {
+    if (booking.status === 'completed' || booking.status === 'cancelled') {
+      Alert.alert('Cannot Cancel', 'This booking cannot be cancelled.');
+      return;
+    }
+
     Alert.alert(
       'Cancel Booking',
-      `Are you sure you want to cancel your ${booking.serviceName} booking?`,
+      `Are you sure you want to cancel your ${booking.serviceName} booking for ${booking.petName}?\n\nDate: ${booking.date} at ${booking.time}`,
       [
         { text: 'No', style: 'cancel' },
         {
           text: 'Yes, Cancel',
           style: 'destructive',
-          onPress: () => {
-            // Update booking status
-            setBookings(prev =>
-              prev.map(b =>
-                b.id === booking.id ? { ...b, status: 'cancelled' as const } : b
-              )
-            );
-            Alert.alert('Booking Cancelled', 'Your booking has been cancelled.');
+          onPress: async () => {
+            try {
+              console.log('Cancelling booking:', booking.id);
+              
+              // In a real app, make API call here:
+              // await bookingAPI.cancel(booking.id);
+              
+              // Update booking status locally
+              setBookings(prev =>
+                prev.map(b =>
+                  b.id === booking.id ? { ...b, status: 'cancelled' as const } : b
+                )
+              );
+              
+              Alert.alert(
+                'Booking Cancelled', 
+                'Your booking has been cancelled successfully.',
+                [{ text: 'OK' }]
+              );
+            } catch (error) {
+              console.error('Error cancelling booking:', error);
+              Alert.alert('Error', 'Failed to cancel booking. Please try again.');
+            }
           },
         },
       ]

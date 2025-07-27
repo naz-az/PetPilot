@@ -162,20 +162,100 @@ export const PaymentMethodsModal: React.FC<PaymentMethodsModalProps> = ({
     );
   };
 
+  const validateCard = () => {
+    const errors: string[] = [];
+    
+    // Card number validation
+    if (!cardNumber.trim()) {
+      errors.push('Card number is required');
+    } else {
+      const cleanNumber = cardNumber.replace(/\s/g, '');
+      if (!/^\d{13,19}$/.test(cleanNumber)) {
+        errors.push('Card number must be 13-19 digits');
+      }
+      
+      // Basic Luhn algorithm check
+      let sum = 0;
+      let isEven = false;
+      for (let i = cleanNumber.length - 1; i >= 0; i--) {
+        let digit = parseInt(cleanNumber[i]);
+        if (isEven) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        sum += digit;
+        isEven = !isEven;
+      }
+      if (sum % 10 !== 0) {
+        errors.push('Invalid card number');
+      }
+    }
+    
+    // Expiry date validation
+    if (!expiryDate.trim()) {
+      errors.push('Expiry date is required');
+    } else if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
+      errors.push('Expiry date must be in MM/YY format');
+    } else {
+      const [month, year] = expiryDate.split('/').map(Number);
+      const currentYear = new Date().getFullYear() % 100;
+      const currentMonth = new Date().getMonth() + 1;
+      
+      if (month < 1 || month > 12) {
+        errors.push('Invalid expiry month');
+      } else if (year < currentYear || (year === currentYear && month < currentMonth)) {
+        errors.push('Card has expired');
+      }
+    }
+    
+    // CVV validation
+    if (!cvv.trim()) {
+      errors.push('CVV is required');
+    } else if (!/^\d{3,4}$/.test(cvv)) {
+      errors.push('CVV must be 3 or 4 digits');
+    }
+    
+    // Cardholder name validation
+    if (!cardholderName.trim()) {
+      errors.push('Cardholder name is required');
+    } else if (cardholderName.trim().length < 2) {
+      errors.push('Cardholder name is too short');
+    } else if (!/^[a-zA-Z\s]+$/.test(cardholderName.trim())) {
+      errors.push('Cardholder name can only contain letters and spaces');
+    }
+    
+    return errors;
+  };
+
+  const detectCardBrand = (number: string) => {
+    const cleanNumber = number.replace(/\s/g, '');
+    if (/^4/.test(cleanNumber)) return 'Visa';
+    if (/^5[1-5]/.test(cleanNumber)) return 'Mastercard';
+    if (/^3[47]/.test(cleanNumber)) return 'American Express';
+    if (/^6/.test(cleanNumber)) return 'Discover';
+    return 'Unknown';
+  };
+
   const handleAddCard = async () => {
-    if (!cardNumber || !expiryDate || !cvv || !cardholderName) {
-      Alert.alert('Error', 'Please fill in all required fields');
+    const validationErrors = validateCard();
+    if (validationErrors.length > 0) {
+      Alert.alert(
+        'Validation Error',
+        validationErrors.join('\n'),
+        [{ text: 'OK' }]
+      );
       return;
     }
 
     setLoading(true);
     try {
       // Mock adding card - in real implementation, process with payment processor
+      const cleanCardNumber = cardNumber.replace(/\s/g, '');
       const newCard: PaymentMethod = {
         id: Date.now().toString(),
         type: 'credit',
-        last4: cardNumber.slice(-4),
-        brand: 'Visa', // Would be detected from card number
+        last4: cleanCardNumber.slice(-4),
+        brand: detectCardBrand(cleanCardNumber),
         expiryMonth: parseInt(expiryDate.split('/')[0]),
         expiryYear: parseInt('20' + expiryDate.split('/')[1]),
         isDefault: paymentMethods.length === 0,
@@ -395,7 +475,6 @@ export const PaymentMethodsModal: React.FC<PaymentMethodsModalProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     maxHeight: Layout.window.height * 0.9,
   },
 
@@ -421,7 +500,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    flex: 1,
+    maxHeight: Layout.window.height * 0.6,
   },
 
   paymentMethodsList: {

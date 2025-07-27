@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   Linking,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -38,6 +39,7 @@ interface ExtendedBooking extends Booking {
     rating: number;
     vehicle: string;
     licensePlate: string;
+    avatar?: string;
   };
   trackingCode: string;
   estimatedDuration: number;
@@ -63,34 +65,121 @@ export default function BookingDetailsScreen({ route, navigation }: BookingDetai
     try {
       console.log('Loading booking details for:', bookingId);
       
-      // Mock booking data - replace with actual API call
-      const mockBooking: ExtendedBooking = {
-        id: bookingId,
-        serviceName: 'Vet Visit Transport',
-        petName: 'Buddy',
-        date: '2024-01-15',
-        time: '10:00 AM',
-        status: 'confirmed',
-        price: 35,
-        pickupAddress: '123 Main Street, City, State 12345',
-        dropoffAddress: 'Happy Paws Vet Clinic, 456 Oak Avenue, City, State 12345',
-        notes: 'Buddy gets car sick sometimes. Please drive carefully and have some towels ready.',
-        pilotInfo: {
-          name: 'Sarah Johnson',
-          phone: '+1 (555) 987-6543',
-          rating: 4.8,
-          vehicle: '2022 Honda CR-V',
-          licensePlate: 'ABC-1234',
+      // Mock booking data based on bookingId - replace with actual API call
+      const mockBookings: { [key: string]: ExtendedBooking } = {
+        '1': {
+          id: '1',
+          serviceName: 'Vet Visit',
+          petName: 'Buddy',
+          date: new Date().toISOString().split('T')[0],
+          time: '10:00 AM',
+          status: 'confirmed',
+          price: 35,
+          pickupAddress: '123 Main St, City',
+          dropoffAddress: 'Happy Paws Vet Clinic, 456 Oak Ave',
+          notes: 'Annual checkup appointment',
+          pilotInfo: {
+            name: 'Sarah Johnson',
+            phone: '+1 (555) 987-6543',
+            rating: 4.8,
+            vehicle: '2022 Honda CR-V',
+            licensePlate: 'VET-123',
+            avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face',
+          },
+          trackingCode: 'PP-2024-001',
+          estimatedDuration: 45,
+          totalDistance: 8.2,
+          specialInstructions: 'Pet carrier required for transport safety.',
+          paymentMethod: 'Credit Card ending in 4567',
+          paymentStatus: 'paid',
         },
-        trackingCode: 'PP-2024-001',
-        estimatedDuration: 45,
-        totalDistance: 12.5,
-        specialInstructions: 'Pet carrier required. Please ensure Buddy is secured properly.',
-        paymentMethod: 'Credit Card ending in 4567',
-        paymentStatus: 'paid',
+        '2': {
+          id: '2',
+          serviceName: 'Pet Transport',
+          petName: 'Whiskers',
+          date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+          time: '2:30 PM',
+          status: 'pending',
+          price: 25,
+          pickupAddress: '123 Main St, City',
+          dropoffAddress: '789 Park Blvd, City',
+          notes: 'Whiskers is very friendly but gets nervous in cars.',
+          pilotInfo: {
+            name: 'Mike Chen',
+            phone: '+1 (555) 123-4567',
+            rating: 4.9,
+            vehicle: '2021 Toyota Prius',
+            licensePlate: 'ECO-456',
+            avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+          },
+          trackingCode: 'PP-2024-002',
+          estimatedDuration: 30,
+          totalDistance: 5.7,
+          specialInstructions: 'Keep music low, cat is sensitive to noise.',
+          paymentMethod: 'Credit Card ending in 8901',
+          paymentStatus: 'pending',
+        },
+        '3': {
+          id: '3',
+          serviceName: 'Grooming Transport',
+          petName: 'Buddy',
+          date: new Date(Date.now() + 604800000).toISOString().split('T')[0],
+          time: '11:00 AM',
+          status: 'confirmed',
+          price: 30,
+          pickupAddress: '123 Main St, City',
+          dropoffAddress: 'Pet Spa & Grooming, 321 Elm St',
+          notes: 'Monthly grooming session',
+          pilotInfo: {
+            name: 'Emily Rodriguez',
+            phone: '+1 (555) 345-6789',
+            rating: 4.7,
+            vehicle: '2023 Honda Pilot',
+            licensePlate: 'GROOM-789',
+            avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b372?w=400&h=400&fit=crop&crop=face',
+          },
+          trackingCode: 'PP-2024-003',
+          estimatedDuration: 60,
+          totalDistance: 12.1,
+          specialInstructions: 'Buddy loves car rides, very well behaved.',
+          paymentMethod: 'Credit Card ending in 2345',
+          paymentStatus: 'paid',
+        },
+        '4': {
+          id: '4',
+          serviceName: 'Emergency Transport',
+          petName: 'Whiskers',
+          date: new Date(Date.now() - 604800000).toISOString().split('T')[0],
+          time: '3:15 PM',
+          status: 'completed',
+          price: 50,
+          pickupAddress: '123 Main St, City',
+          dropoffAddress: 'Emergency Vet Clinic, 555 Rush Ave',
+          notes: 'Emergency visit - recovered well',
+          pilotInfo: {
+            name: 'David Kim',
+            phone: '+1 (555) 911-2468',
+            rating: 5.0,
+            vehicle: '2022 Ford Transit',
+            licensePlate: 'EMRG-911',
+            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          },
+          trackingCode: 'PP-2024-004',
+          estimatedDuration: 20,
+          totalDistance: 3.8,
+          specialInstructions: 'Emergency transport - priority handling.',
+          paymentMethod: 'Credit Card ending in 4567',
+          paymentStatus: 'paid',
+        },
       };
+
+      const booking = mockBookings[bookingId];
+      if (!booking) {
+        setBooking(null);
+        return;
+      }
       
-      setBooking(mockBooking);
+      setBooking(booking);
     } catch (error) {
       console.error('Error loading booking details:', error);
       Alert.alert('Error', 'Failed to load booking details.');
@@ -148,22 +237,44 @@ export default function BookingDetailsScreen({ route, navigation }: BookingDetai
   };
 
   const handleCancelBooking = () => {
-    if (booking?.status === 'completed' || booking?.status === 'cancelled') {
+    if (!booking) return;
+    
+    if (booking.status === 'completed' || booking.status === 'cancelled') {
       Alert.alert('Cannot Cancel', 'This booking cannot be cancelled.');
       return;
     }
 
     Alert.alert(
       'Cancel Booking',
-      'Are you sure you want to cancel this booking?',
+      `Are you sure you want to cancel this ${booking.serviceName} booking?\n\nRefund: ${booking.paymentStatus === 'paid' ? 'Full refund will be processed' : 'No payment to refund'}`,
       [
         { text: 'No', style: 'cancel' },
         {
           text: 'Yes, Cancel',
           style: 'destructive',
-          onPress: () => {
-            setBooking(prev => prev ? { ...prev, status: 'cancelled' } : null);
-            Alert.alert('Booking Cancelled', 'Your booking has been cancelled.');
+          onPress: async () => {
+            try {
+              console.log('Cancelling booking:', booking.id);
+              
+              // In real app, make API call:
+              // await bookingAPI.cancel(booking.id);
+              
+              setBooking(prev => prev ? { 
+                ...prev, 
+                status: 'cancelled',
+                paymentStatus: prev.paymentStatus === 'paid' ? 'refunded' : prev.paymentStatus 
+              } : null);
+              
+              Alert.alert(
+                'Booking Cancelled', 
+                'Your booking has been cancelled successfully.' + 
+                (booking.paymentStatus === 'paid' ? ' Refund will be processed within 3-5 business days.' : ''),
+                [{ text: 'OK' }]
+              );
+            } catch (error) {
+              console.error('Error cancelling booking:', error);
+              Alert.alert('Error', 'Failed to cancel booking. Please try again.');
+            }
           },
         },
       ]
@@ -184,11 +295,41 @@ export default function BookingDetailsScreen({ route, navigation }: BookingDetai
   };
 
   const handleSubmitReview = async (rating: number, comment: string) => {
+    if (!booking?.pilotInfo) {
+      throw new Error('Pilot information not available');
+    }
+
+    if (rating < 1 || rating > 5) {
+      throw new Error('Rating must be between 1 and 5 stars');
+    }
+
+    if (comment.trim().length < 10) {
+      throw new Error('Please provide a more detailed review (at least 10 characters)');
+    }
+
     try {
-      console.log('Submitting review:', { rating, comment, pilotId: booking?.pilotInfo?.name });
-      // In real implementation, submit to API
-      Alert.alert('Success', 'Thank you for your review!');
+      console.log('Submitting review:', { 
+        rating, 
+        comment: comment.trim(), 
+        pilotId: booking.pilotInfo.name,
+        bookingId: booking.id 
+      });
+      
+      // In real implementation, submit to API:
+      // await reviewAPI.create({
+      //   rating,
+      //   comment: comment.trim(),
+      //   pilotId: booking.pilotInfo.id,
+      //   bookingId: booking.id
+      // });
+      
+      Alert.alert(
+        'Review Submitted', 
+        'Thank you for your feedback! Your review helps improve our service.',
+        [{ text: 'OK' }]
+      );
     } catch (error) {
+      console.error('Error submitting review:', error);
       throw error;
     }
   };
@@ -400,7 +541,11 @@ export default function BookingDetailsScreen({ route, navigation }: BookingDetai
                 <View style={styles.pilotInfo}>
                   <View style={styles.pilotHeader}>
                     <View style={styles.pilotAvatar}>
-                      <Ionicons name="person" size={24} color={Colors.primary} />
+                      {booking.pilotInfo.avatar ? (
+                        <Image source={{ uri: booking.pilotInfo.avatar }} style={styles.pilotAvatarImage} />
+                      ) : (
+                        <Ionicons name="person" size={24} color={Colors.primary} />
+                      )}
                     </View>
                     <View style={styles.pilotDetails}>
                       <Text style={styles.pilotName}>{booking.pilotInfo.name}</Text>
@@ -712,6 +857,13 @@ const styles = StyleSheet.create({
     marginRight: Layout.spacing.md,
     borderWidth: 1,
     borderColor: Colors.glassBorder,
+    overflow: 'hidden',
+  },
+
+  pilotAvatarImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
 
   pilotDetails: {

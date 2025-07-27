@@ -35,6 +35,7 @@ export { EnhancedWeatherWidget } from './EnhancedWeatherWidget';
 export { PaymentMethodsModal } from './PaymentMethodsModal';
 export { PrivacySecurityModal } from './PrivacySecurityModal';
 export { CalendarView } from './CalendarView';
+export { ProfileDropdown } from './ProfileDropdown';
 
 // Re-export types
 export type { ActionSheetOption } from './ActionSheet';

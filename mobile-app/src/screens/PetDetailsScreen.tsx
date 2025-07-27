@@ -48,24 +48,115 @@ export default function PetDetailsScreen({ route, navigation }: PetDetailsScreen
   const loadPetDetails = async () => {
     try {
       console.log('Loading pet details for:', petId);
-      // Mock pet data for now - replace with actual API call
-      const mockPet: Pet = {
-        id: petId,
-        name: 'Buddy',
-        species: 'Dog',
-        breed: 'Golden Retriever',
-        age: 3,
-        weight: 65,
-        size: 'Large',
-        color: 'Golden',
-        photo: undefined,
-        description: 'Friendly and energetic dog who loves playing fetch and going on walks.',
-        medicalNotes: 'Up to date on all vaccinations. Allergic to chicken.',
-        emergencyContact: 'Dr. Smith - (555) 123-4567',
-        microchipId: 'ABC123456789',
-        lastVetVisit: '2024-01-15',
-      };
-      setPet(mockPet);
+      // Try to get pet from API first, fall back to mock data
+      try {
+        const response = await petAPI.getById(petId);
+        setPet(response.data.pet);
+      } catch (apiError) {
+        console.log('API call failed, using mock data for petId:', petId);
+        // Generate different mock data based on petId
+        const mockPets: { [key: string]: Pet } = {
+          '1': {
+            id: petId,
+            name: 'Buddy',
+            species: 'Dog',
+            breed: 'Golden Retriever',
+            age: 3,
+            weight: 65,
+            size: 'Large',
+            color: 'Golden',
+            photo: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=400&fit=crop&crop=face',
+            description: 'Friendly and energetic dog who loves playing fetch and going on walks.',
+            medicalNotes: 'Up to date on all vaccinations. Allergic to chicken.',
+            emergencyContact: 'Dr. Smith - (555) 123-4567',
+            microchipId: 'ABC123456789',
+            lastVetVisit: '2024-01-15',
+          },
+          '2': {
+            id: petId,
+            name: 'Luna',
+            species: 'Cat',
+            breed: 'Persian',
+            age: 2,
+            weight: 12,
+            size: 'Medium',
+            color: 'White',
+            photo: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&crop=face',
+            description: 'Calm and affectionate cat who enjoys quiet environments and gentle pets.',
+            medicalNotes: 'Spayed. Regular flea treatment required.',
+            emergencyContact: 'Dr. Johnson - (555) 234-5678',
+            microchipId: 'XYZ987654321',
+            lastVetVisit: '2024-02-20',
+          },
+          '3': {
+            id: petId,
+            name: 'Max',
+            species: 'Dog',
+            breed: 'German Shepherd',
+            age: 5,
+            weight: 80,
+            size: 'Large',
+            color: 'Black and Tan',
+            photo: 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=400&h=400&fit=crop&crop=face',
+            description: 'Intelligent and loyal working dog. Great with children and very protective.',
+            medicalNotes: 'Hip dysplasia monitoring required. Regular exercise recommended.',
+            emergencyContact: 'Dr. Wilson - (555) 345-6789',
+            microchipId: 'DEF456123789',
+            lastVetVisit: '2024-01-30',
+          },
+          '4': {
+            id: petId,
+            name: 'Bella',
+            species: 'Dog',
+            breed: 'Labrador',
+            age: 1,
+            weight: 45,
+            size: 'Medium',
+            color: 'Chocolate',
+            photo: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400&h=400&fit=crop&crop=face',
+            description: 'Young and playful puppy who loves swimming and playing with toys.',
+            medicalNotes: 'Puppy vaccinations in progress. Next shot due in 2 weeks.',
+            emergencyContact: 'Dr. Brown - (555) 456-7890',
+            microchipId: 'GHI789456123',
+            lastVetVisit: '2024-02-10',
+          },
+          '5': {
+            id: petId,
+            name: 'Whiskers',
+            species: 'Cat',
+            breed: 'Maine Coon',
+            age: 4,
+            weight: 18,
+            size: 'Large',
+            color: 'Tabby',
+            photo: 'https://images.unsplash.com/photo-1595433707802-6b2626ef1c91?w=400&h=400&fit=crop&crop=face',
+            description: 'Large, gentle giant who loves to be brushed and enjoys high perches.',
+            medicalNotes: 'Regular grooming required. Prone to hairballs.',
+            emergencyContact: 'Dr. Davis - (555) 567-8901',
+            microchipId: 'JKL123789456',
+            lastVetVisit: '2024-02-05',
+          },
+        };
+        
+        const mockPet = mockPets[petId] || {
+          id: petId,
+          name: 'Unknown Pet',
+          species: 'Dog',
+          breed: 'Mixed',
+          age: 2,
+          weight: 30,
+          size: 'Medium',
+          color: 'Brown',
+          photo: undefined,
+          description: 'A lovely pet waiting to be discovered.',
+          medicalNotes: 'Regular checkups recommended.',
+          emergencyContact: 'Local Vet - (555) 000-0000',
+          microchipId: 'UNKNOWN',
+          lastVetVisit: '2024-01-01',
+        };
+        
+        setPet(mockPet);
+      }
     } catch (error) {
       console.error('Error loading pet details:', error);
       Alert.alert('Error', 'Failed to load pet details.');

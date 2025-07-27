@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.glassBorder,
     overflow: 'hidden',
-    backgroundColor: Colors.glass,
+    backgroundColor: Colors.backgroundCard,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

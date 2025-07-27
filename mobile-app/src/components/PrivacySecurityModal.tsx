@@ -375,7 +375,6 @@ export const PrivacySecurityModal: React.FC<PrivacySecurityModalProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     maxHeight: Layout.window.height * 0.9,
   },
 
@@ -401,7 +400,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    flex: 1,
+    maxHeight: Layout.window.height * 0.6,
   },
 
   section: {

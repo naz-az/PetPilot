@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -77,6 +78,7 @@ export default function FindPilotsScreen({ navigation }: FindPilotsScreenProps) 
           isAvailable: true,
           specialties: ['Cats', 'Small Dogs', 'Senior Pets'],
           pricePerMile: 2.50,
+          photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b193?w=400&h=400&fit=crop&crop=face',
           bio: 'Experienced pet transport specialist with over 3 years of caring for animals during transport.',
           responseTime: '< 5 min',
           completedTrips: 245,
@@ -92,6 +94,7 @@ export default function FindPilotsScreen({ navigation }: FindPilotsScreenProps) 
           isAvailable: true,
           specialties: ['Large Dogs', 'Multiple Pets', 'Emergency Transport'],
           pricePerMile: 2.75,
+          photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
           bio: 'Former veterinary assistant specializing in safe transport of larger pets and emergency situations.',
           responseTime: '< 3 min',
           completedTrips: 189,
@@ -107,6 +110,7 @@ export default function FindPilotsScreen({ navigation }: FindPilotsScreenProps) 
           isAvailable: false,
           specialties: ['Exotic Pets', 'Medical Transport', 'Long Distance'],
           pricePerMile: 3.00,
+          photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face',
           bio: 'Certified animal handler with expertise in exotic pet care and medical transport protocols.',
           responseTime: '< 8 min',
           completedTrips: 312,
@@ -122,6 +126,7 @@ export default function FindPilotsScreen({ navigation }: FindPilotsScreenProps) 
           isAvailable: true,
           specialties: ['Group Transport', 'Multiple Pets', 'Pet Events'],
           pricePerMile: 2.25,
+          photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
           bio: 'Spacious vehicle perfect for transporting multiple pets or larger groups to events and gatherings.',
           responseTime: '< 10 min',
           completedTrips: 178,
@@ -137,6 +142,7 @@ export default function FindPilotsScreen({ navigation }: FindPilotsScreenProps) 
           isAvailable: true,
           specialties: ['Luxury Transport', 'Show Dogs', 'Premium Service'],
           pricePerMile: 4.50,
+          photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
           bio: 'Premium pet transport service for show animals and clients seeking luxury transportation.',
           responseTime: '< 15 min',
           completedTrips: 134,
@@ -230,15 +236,7 @@ export default function FindPilotsScreen({ navigation }: FindPilotsScreenProps) 
   };
 
   const handleViewProfile = (pilot: Pilot) => {
-    Alert.alert(
-      pilot.name,
-      `${pilot.bio}\n\nVehicle: ${pilot.vehicleType}\nCompleted Trips: ${pilot.completedTrips}\nResponse Time: ${pilot.responseTime}\nSpecialties: ${pilot.specialties.join(', ')}`,
-      [
-        { text: 'Close' },
-        { text: 'Contact', onPress: () => handleContactPilot(pilot) },
-        { text: 'Book', onPress: () => handleBookPilot(pilot) },
-      ]
-    );
+    navigation.navigate('PilotDetails', { pilotId: pilot.id });
   };
 
   const handleSortChange = () => {
@@ -255,11 +253,19 @@ export default function FindPilotsScreen({ navigation }: FindPilotsScreenProps) 
   };
 
   const renderPilot = (pilot: Pilot) => (
-    <GlassCard key={pilot.id} style={styles.pilotCard}>
-      <TouchableOpacity onPress={() => handleViewProfile(pilot)} activeOpacity={0.8}>
+    <TouchableOpacity 
+      key={pilot.id} 
+      onPress={() => handleViewProfile(pilot)} 
+      activeOpacity={0.8}
+      style={[styles.pilotCardContainer, styles.pilotCard]}
+    >
         <View style={styles.pilotHeader}>
           <View style={styles.pilotAvatar}>
-            <Ionicons name="person" size={24} color={Colors.primary} />
+            {pilot.photo ? (
+              <Image source={{ uri: pilot.photo }} style={styles.avatarImage} />
+            ) : (
+              <Ionicons name="person" size={24} color={Colors.primary} />
+            )}
           </View>
           <View style={styles.pilotInfo}>
             <Text style={styles.pilotName}>{pilot.name}</Text>
@@ -313,7 +319,10 @@ export default function FindPilotsScreen({ navigation }: FindPilotsScreenProps) 
         <View style={styles.pilotActions}>
           <GlassButton
             title="Contact"
-            onPress={() => handleContactPilot(pilot)}
+            onPress={(e) => {
+              e?.stopPropagation();
+              handleContactPilot(pilot);
+            }}
             variant="outline"
             size="small"
             style={styles.contactButton}
@@ -321,14 +330,16 @@ export default function FindPilotsScreen({ navigation }: FindPilotsScreenProps) 
           />
           <GlassButton
             title="Book Now"
-            onPress={() => handleBookPilot(pilot)}
+            onPress={(e) => {
+              e?.stopPropagation();
+              handleBookPilot(pilot);
+            }}
             size="small"
             style={styles.bookButton}
             disabled={!pilot.isAvailable}
           />
         </View>
-      </TouchableOpacity>
-    </GlassCard>
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -509,9 +520,16 @@ const styles = StyleSheet.create({
     paddingBottom: Layout.spacing.xl,
   },
 
+  pilotCardContainer: {
+    marginBottom: Layout.spacing.md,
+  },
+
   pilotCard: {
     padding: Layout.spacing.lg,
-    marginBottom: Layout.spacing.md,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: Layout.radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
 
   pilotHeader: {
@@ -530,6 +548,13 @@ const styles = StyleSheet.create({
     marginRight: Layout.spacing.md,
     borderWidth: 2,
     borderColor: Colors.primary,
+    overflow: 'hidden',
+  },
+
+  avatarImage: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
   },
 
   pilotInfo: {

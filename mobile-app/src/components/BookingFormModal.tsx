@@ -76,22 +76,69 @@ export default function BookingFormModal({
     onClose();
   };
 
+  const validateBookingForm = () => {
+    const errors: string[] = [];
+
+    if (!selectedPetId) {
+      errors.push('Please select a pet');
+    }
+    
+    if (!date.trim()) {
+      errors.push('Please select a date');
+    } else {
+      const selectedDate = new Date(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        errors.push('Please select a future date');
+      }
+    }
+    
+    if (!time.trim()) {
+      errors.push('Please select a time');
+    }
+    
+    if (!pickupAddress.trim()) {
+      errors.push('Please enter pickup address');
+    } else if (pickupAddress.trim().length < 10) {
+      errors.push('Please enter a complete pickup address');
+    }
+    
+    if (!dropoffAddress.trim()) {
+      errors.push('Please enter drop-off address');
+    } else if (dropoffAddress.trim().length < 10) {
+      errors.push('Please enter a complete drop-off address');
+    }
+    
+    if (pickupAddress.trim().toLowerCase() === dropoffAddress.trim().toLowerCase()) {
+      errors.push('Pickup and drop-off addresses must be different');
+    }
+
+    return errors;
+  };
+
   const handleSubmit = () => {
     if (!service) return;
 
-    if (!selectedPetId || !date || !time || !pickupAddress || !dropoffAddress) {
-      Alert.alert('Missing Information', 'Please fill in all required fields.');
+    const validationErrors = validateBookingForm();
+    if (validationErrors.length > 0) {
+      Alert.alert(
+        'Validation Error', 
+        validationErrors.join('\n'),
+        [{ text: 'OK' }]
+      );
       return;
     }
 
     const bookingData: BookingFormData = {
       serviceId: service.id,
       petId: selectedPetId,
-      date,
-      time,
-      notes,
-      pickupAddress,
-      dropoffAddress,
+      date: date.trim(),
+      time: time.trim(),
+      notes: notes.trim(),
+      pickupAddress: pickupAddress.trim(),
+      dropoffAddress: dropoffAddress.trim(),
     };
 
     onSubmit(bookingData);
@@ -105,7 +152,7 @@ export default function BookingFormModal({
         <View style={styles.header}>
           <Text style={styles.title}>Book Service</Text>
           <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-            <Ionicons name="close" size={24} color={Colors.text} />
+            <Ionicons name="close" size={24} color={Colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -214,7 +261,7 @@ export default function BookingFormModal({
           style={styles.cancelButton}
         />
         <GlassButton
-          title={loading ? 'Booking...' : 'Book Service'}
+          title={loading ? 'Booking...' : 'Book Servicess'}
           onPress={handleSubmit}
           loading={loading}
           disabled={pets.length === 0 || loading}
@@ -228,15 +275,17 @@ export default function BookingFormModal({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     maxHeight: Layout.window.height * 0.9,
   },
 
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: Layout.spacing.lg,
+    paddingBottom: Layout.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.glassBorder,
   },
 
   title: {
@@ -247,19 +296,11 @@ const styles = StyleSheet.create({
   },
 
   closeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.backgroundCard,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    padding: Layout.spacing.xs,
   },
 
   content: {
-    flex: 1,
-    marginBottom: Layout.spacing.lg,
+    maxHeight: Layout.window.height * 0.6,
   },
 
   serviceInfo: {
@@ -268,7 +309,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.backgroundCard,
     padding: Layout.spacing.md,
-    borderRadius: Layout.borderRadius,
+    borderRadius: Layout.radius.md,
     borderWidth: 1,
     borderColor: Colors.glassBorder,
     marginBottom: Layout.spacing.lg,
@@ -316,7 +357,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.backgroundCard,
     padding: Layout.spacing.md,
-    borderRadius: Layout.borderRadius,
+    borderRadius: Layout.radius.md,
     borderWidth: 1,
     borderColor: Colors.glassBorder,
   },

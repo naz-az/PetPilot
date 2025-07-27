@@ -161,6 +161,134 @@ export const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
     }
   };
 
+  const handleAddNewItem = () => {
+    if (activeTab === 'records') {
+      Alert.alert(
+        'Add Medical Record',
+        'What would you like to add?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Vet Visit', 
+            onPress: () => promptForNewRecord('visit') 
+          },
+          { 
+            text: 'Vaccination', 
+            onPress: () => promptForNewRecord('vaccination') 
+          },
+          { 
+            text: 'Medication', 
+            onPress: () => promptForNewRecord('medication') 
+          },
+        ]
+      );
+    } else {
+      promptForNewAppointment();
+    }
+  };
+
+  const promptForNewRecord = (type: string) => {
+    Alert.alert(
+      `Add ${type === 'visit' ? 'Vet Visit' : type === 'vaccination' ? 'Vaccination' : 'Medication'} Record`,
+      'Enter the details:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Add Record', 
+          onPress: () => {
+            const newRecord: MedicalRecord = {
+              id: Date.now().toString(),
+              title: type === 'visit' ? 'Vet Visit' : type === 'vaccination' ? 'Vaccination' : 'Medication Update',
+              description: `New ${type} record added`,
+              diagnosis: '',
+              treatment: '',
+              medications: [],
+              vetName: 'Dr. TBD',
+              vetClinic: 'Clinic TBD',
+              visitDate: new Date().toISOString().split('T')[0],
+              documents: [],
+            };
+            
+            setMedicalRecords(prev => [newRecord, ...prev]);
+            Alert.alert('Success', 'Medical record added successfully!');
+          }
+        }
+      ]
+    );
+  };
+
+  const promptForNewAppointment = () => {
+    Alert.alert(
+      'Schedule Appointment',
+      'Enter appointment details:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Schedule', 
+          onPress: () => {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const newAppointment: VetAppointment = {
+              id: Date.now().toString(),
+              title: 'Routine Checkup',
+              description: 'General health examination',
+              appointmentDate: tomorrow.toISOString(),
+              duration: 60,
+              status: 'scheduled',
+              vetName: 'Dr. TBD',
+              vetClinic: 'Clinic TBD',
+              notes: 'Please bring vaccination records',
+            };
+            
+            setAppointments(prev => [newAppointment, ...prev]);
+            Alert.alert('Success', 'Appointment scheduled successfully!');
+          }
+        }
+      ]
+    );
+  };
+
+  const handleDeleteRecord = (recordId: string) => {
+    Alert.alert(
+      'Delete Record',
+      'Are you sure you want to delete this medical record?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            setMedicalRecords(prev => prev.filter(record => record.id !== recordId));
+            Alert.alert('Success', 'Medical record deleted successfully!');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteAppointment = (appointmentId: string) => {
+    Alert.alert(
+      'Cancel Appointment',
+      'Are you sure you want to cancel this appointment?',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Cancel Appointment',
+          style: 'destructive',
+          onPress: () => {
+            setAppointments(prev => 
+              prev.map(apt => 
+                apt.id === appointmentId ? { ...apt, status: 'cancelled' as const } : apt
+              )
+            );
+            Alert.alert('Success', 'Appointment cancelled successfully!');
+          },
+        },
+      ]
+    );
+  };
+
   const renderTabButton = (tab: 'records' | 'appointments', title: string, icon: string) => (
     <TouchableOpacity
       style={[styles.tabButton, activeTab === tab && styles.activeTabButton]}
@@ -181,7 +309,15 @@ export const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
     <GlassCard key={record.id} style={styles.recordCard}>
       <View style={styles.recordHeader}>
         <Text style={styles.recordTitle}>{record.title}</Text>
-        <Text style={styles.recordDate}>{formatDate(record.visitDate)}</Text>
+        <View style={styles.recordHeaderRight}>
+          <Text style={styles.recordDate}>{formatDate(record.visitDate)}</Text>
+          <TouchableOpacity 
+            onPress={() => handleDeleteRecord(record.id)}
+            style={styles.deleteButton}
+          >
+            <Ionicons name="trash-outline" size={16} color={Colors.error} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {record.description && (
@@ -227,10 +363,20 @@ export const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
     <GlassCard key={appointment.id} style={styles.recordCard}>
       <View style={styles.recordHeader}>
         <Text style={styles.recordTitle}>{appointment.title}</Text>
-        <View style={[styles.statusBadge, { borderColor: getStatusColor(appointment.status) }]}>
-          <Text style={[styles.statusText, { color: getStatusColor(appointment.status) }]}>
-            {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-          </Text>
+        <View style={styles.appointmentHeaderRight}>
+          <View style={[styles.statusBadge, { borderColor: getStatusColor(appointment.status) }]}>
+            <Text style={[styles.statusText, { color: getStatusColor(appointment.status) }]}>
+              {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+            </Text>
+          </View>
+          {appointment.status !== 'cancelled' && appointment.status !== 'completed' && (
+            <TouchableOpacity 
+              onPress={() => handleDeleteAppointment(appointment.id)}
+              style={styles.deleteButton}
+            >
+              <Ionicons name="close-circle-outline" size={16} color={Colors.error} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -332,10 +478,7 @@ export const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
         <View style={styles.footer}>
           <GlassButton
             title={activeTab === 'records' ? 'Add Record' : 'Schedule Appointment'}
-            onPress={() => Alert.alert(
-              activeTab === 'records' ? 'Add Medical Record' : 'Schedule Appointment',
-              `${activeTab === 'records' ? 'Medical record management' : 'Appointment scheduling'} features will be available in the next update. You can currently view existing records and appointments.`
-            )}
+            onPress={handleAddNewItem}
             style={styles.addButton}
           />
         </View>
@@ -346,7 +489,6 @@ export const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     maxHeight: Layout.window.height * 0.9,
   },
 
@@ -419,7 +561,6 @@ const styles = StyleSheet.create({
 
   content: {
     flex: 1,
-    maxHeight: 400,
   },
 
   contentContainer: {
@@ -435,6 +576,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: Layout.spacing.sm,
+  },
+
+  recordHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Layout.spacing.xs,
+  },
+
+  appointmentHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Layout.spacing.xs,
+  },
+
+  deleteButton: {
+    padding: 4,
+    borderRadius: 12,
+    backgroundColor: Colors.error + '20',
   },
 
   recordTitle: {

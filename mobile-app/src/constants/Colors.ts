@@ -12,15 +12,15 @@ export const Colors = {
   // Text Colors
   text: '#FFFFFF',
   textSecondary: '#FEFEFE',
-  textMuted: '#3B3B3B',
+  textMuted: '#A0A0A0',
   
   // Glass/Card Colors (more subtle like FoodNinja)
-  glass: 'rgba(37, 37, 37, 0.85)',
-  glassBorder: 'rgba(255, 255, 255, 0.08)',
+  glass: 'rgba(42, 42, 42, 0.95)',
+  glassBorder: 'rgba(255, 255, 255, 0.2)',
   
   // Input Colors (matching FoodNinja style)
-  inputBackground: 'rgba(37, 37, 37, 0.6)',
-  inputBorder: 'rgba(255, 255, 255, 0.08)',
+  inputBackground: 'rgba(42, 42, 42, 0.9)',
+  inputBorder: 'rgba(255, 255, 255, 0.15)',
   inputFocus: 'rgba(83, 232, 139, 0.3)',
   
   // Status Colors

@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginHorizontal: Layout.spacing.xs,
-    marginBottom: Layout.spacing.md,
+    marginVertical: Layout.spacing.xs,
   },
 
   card: {
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.glassBorder,
     overflow: 'hidden',
-    height: 140, // Fixed height for consistency
+    height: 185, // Increased height for better visual presence
   },
 
   content: {

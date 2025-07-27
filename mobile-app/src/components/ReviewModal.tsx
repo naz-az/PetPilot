@@ -35,9 +35,43 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const validateReview = () => {
+    const errors: string[] = [];
+    
     if (rating === 0) {
-      Alert.alert('Rating Required', 'Please select a rating before submitting');
+      errors.push('Please select a rating');
+    }
+    
+    if (rating < 1 || rating > 5) {
+      errors.push('Rating must be between 1 and 5 stars');
+    }
+    
+    const trimmedComment = comment.trim();
+    if (trimmedComment.length > 0 && trimmedComment.length < 5) {
+      errors.push('Comment must be at least 5 characters long');
+    }
+    
+    if (trimmedComment.length > 500) {
+      errors.push('Comment must be less than 500 characters');
+    }
+    
+    // Check for inappropriate content (basic filter)
+    const inappropriateWords = ['spam', 'fake', 'scam'];
+    if (inappropriateWords.some(word => trimmedComment.toLowerCase().includes(word))) {
+      errors.push('Please provide constructive feedback');
+    }
+    
+    return errors;
+  };
+
+  const handleSubmit = async () => {
+    const validationErrors = validateReview();
+    if (validationErrors.length > 0) {
+      Alert.alert(
+        'Validation Error',
+        validationErrors.join('\n'),
+        [{ text: 'OK' }]
+      );
       return;
     }
 
@@ -47,9 +81,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       onClose();
       setRating(0);
       setComment('');
-      Alert.alert('Success', 'Thank you for your review!');
-    } catch (error) {
-      Alert.alert('Error', 'Failed to submit review. Please try again.');
+    } catch (error: any) {
+      Alert.alert(
+        'Error', 
+        error.message || 'Failed to submit review. Please try again.',
+        [{ text: 'OK' }]
+      );
     } finally {
       setLoading(false);
     }
@@ -141,7 +178,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    maxHeight: Layout.window.height * 0.7,
+    maxHeight: Layout.window.height * 0.9,
   },
 
   header: {

@@ -97,14 +97,15 @@ export default function ProfileEditModal({
 
   return (
     <Modal visible={visible} onClose={handleClose}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Edit Profile</Text>
-        <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-          <Ionicons name="close" size={24} color={Colors.text} />
-        </TouchableOpacity>
-      </View>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Edit Profile</Text>
+          <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+            <Ionicons name="close" size={24} color={Colors.text} />
+          </TouchableOpacity>
+        </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.avatarSection}>
           <TouchableOpacity style={styles.avatarContainer} onPress={handleAvatarPress}>
             {profile.avatar ? (
@@ -172,30 +173,38 @@ export default function ProfileEditModal({
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
-        <GlassButton
-          title="Cancel"
-          onPress={handleClose}
-          variant="secondary"
-          style={styles.cancelButton}
-        />
-        <GlassButton
-          title={loading ? 'Saving...' : 'Save Changes'}
-          onPress={handleSave}
-          loading={loading}
-          style={styles.saveButton}
-        />
+        <View style={styles.footer}>
+          <GlassButton
+            title="Cancel"
+            onPress={handleClose}
+            variant="secondary"
+            style={styles.cancelButton}
+          />
+          <GlassButton
+            title={loading ? 'Saving...' : 'Save Changes'}
+            onPress={handleSave}
+            loading={loading}
+            style={styles.saveButton}
+          />
+        </View>
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    maxHeight: Layout.window.height * 0.9,
+  },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Layout.spacing.lg,
+    paddingBottom: Layout.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.glassBorder,
   },
 
   title: {
@@ -206,19 +215,11 @@ const styles = StyleSheet.create({
   },
 
   closeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.backgroundCard,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    padding: Layout.spacing.xs,
   },
 
   content: {
-    flex: 1,
-    marginBottom: Layout.spacing.lg,
+    maxHeight: Layout.window.height * 0.6,
   },
 
   avatarSection: {

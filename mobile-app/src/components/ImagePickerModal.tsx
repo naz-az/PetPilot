@@ -100,14 +100,15 @@ export default function ImagePickerModal({
 
   return (
     <Modal visible={visible} onClose={onClose}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <Ionicons name="close" size={24} color={Colors.text} />
-        </TouchableOpacity>
-      </View>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{title}</Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Ionicons name="close" size={24} color={Colors.text} />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.content}>
+        <View style={styles.content}>
         <Text style={styles.subtitle}>Choose how you'd like to add a photo</Text>
 
         <View style={styles.options}>
@@ -145,17 +146,25 @@ export default function ImagePickerModal({
             <Text style={styles.tipItem}>• Make sure your pet is clearly visible</Text>
           </View>
         </View>
+        </View>
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    maxHeight: Layout.window.height * 0.9,
+  },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Layout.spacing.lg,
+    paddingBottom: Layout.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.glassBorder,
   },
 
   title: {
@@ -166,18 +175,11 @@ const styles = StyleSheet.create({
   },
 
   closeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.backgroundCard,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    padding: Layout.spacing.xs,
   },
 
   content: {
-    flex: 1,
+    maxHeight: Layout.window.height * 0.6,
   },
 
   subtitle: {

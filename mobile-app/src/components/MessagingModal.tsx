@@ -231,9 +231,7 @@ export const MessagingModal: React.FC<MessagingModalProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    maxHeight: Layout.window.height * 0.8,
-    minHeight: Layout.window.height * 0.6,
+    maxHeight: Layout.window.height * 0.9,
   },
 
   header: {
@@ -287,7 +285,7 @@ const styles = StyleSheet.create({
   },
 
   chatContainer: {
-    flex: 1,
+    maxHeight: Layout.window.height * 0.6,
   },
 
   messagesContainer: {

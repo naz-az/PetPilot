@@ -28,33 +28,37 @@ export const Modal: React.FC<ModalProps> = ({
   closeOnBackdrop = true,
 }) => {
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const scaleAnim = React.useRef(new Animated.Value(0.8)).current;
+  const scaleAnim = React.useRef(new Animated.Value(0.95)).current;
+  const [animationComplete, setAnimationComplete] = React.useState(false);
 
   React.useEffect(() => {
     if (visible) {
+      setAnimationComplete(false);
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 65,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
+          duration: 150,
           useNativeDriver: true,
         }),
         Animated.timing(scaleAnim, {
-          toValue: 0.8,
-          duration: 200,
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setAnimationComplete(true);
+      });
+    } else {
+      setAnimationComplete(false);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 0.95,
+          duration: 100,
           useNativeDriver: true,
         }),
       ]).start();
@@ -116,7 +120,7 @@ const styles = StyleSheet.create({
   },
   
   container: {
-    backgroundColor: Colors.glass,
+    backgroundColor: Colors.backgroundCard,
     borderRadius: Layout.radius.xl,
     marginHorizontal: Layout.spacing.lg,
     padding: Layout.spacing.lg,
@@ -129,5 +133,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
     width: '90%',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
 });

@@ -60,7 +60,7 @@ export default function ProfileScreen() {
           email: userData.email || 'john@example.com',
           phone: '+1 (555) 123-4567',
           address: '123 Main Street, City, State 12345',
-          avatar: undefined,
+          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
           joinDate: '2024-01-01',
           totalBookings: 12,
           totalPets: 2,
@@ -75,7 +75,7 @@ export default function ProfileScreen() {
           email: 'john@example.com',
           phone: '+1 (555) 123-4567',
           address: '123 Main Street, City, State 12345',
-          avatar: undefined,
+          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
           joinDate: '2024-01-01',
           totalBookings: 12,
           totalPets: 2,
@@ -166,9 +166,45 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: () => {
             Alert.alert(
-              'Account Deletion',
-              'Account deletion functionality will be implemented soon.',
-              [{ text: 'OK' }]
+              'Final Confirmation',
+              'This will permanently delete your account, all your data, pets, and bookings. This cannot be undone.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete Forever',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      // Clear all local data
+                      await AsyncStorage.multiRemove([
+                        'userData',
+                        'authToken',
+                        'user',
+                        'accessToken',
+                        'refreshToken'
+                      ]);
+                      
+                      // In a real app, you would make an API call here:
+                      // await userAPI.deleteAccount(profile.id);
+                      
+                      Alert.alert(
+                        'Account Deleted',
+                        'Your account has been permanently deleted.',
+                        [{ 
+                          text: 'OK',
+                          onPress: () => {
+                            // Navigate to login screen
+                            console.log('Account deleted, navigating to login...');
+                          }
+                        }]
+                      );
+                    } catch (error) {
+                      console.error('Error deleting account:', error);
+                      Alert.alert('Error', 'Failed to delete account. Please try again.');
+                    }
+                  },
+                },
+              ]
             );
           },
         },

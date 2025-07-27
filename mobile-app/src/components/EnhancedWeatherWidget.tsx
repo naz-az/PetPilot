@@ -224,7 +224,7 @@ export const EnhancedWeatherWidget: React.FC<EnhancedWeatherWidgetProps> = ({
 
   if (!weather) {
     return (
-      <GlassCard style={StyleSheet.flatten([styles.container, style])}>
+      <GlassCard style={StyleSheet.flatten([styles.widgetContainer, style])}>
         <View style={styles.loadingContainer}>
           <Ionicons name="cloudy-outline" size={24} color={Colors.textSecondary} />
           <Text style={styles.loadingText}>Loading weather...</Text>
@@ -236,7 +236,7 @@ export const EnhancedWeatherWidget: React.FC<EnhancedWeatherWidgetProps> = ({
   return (
     <>
       <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
-        <GlassCard style={StyleSheet.flatten([styles.container, style])}>
+        <GlassCard style={StyleSheet.flatten([styles.widgetContainer, style])}>
           <View style={styles.header}>
             <View style={styles.locationInfo}>
               <Ionicons name="location-outline" size={16} color={Colors.textSecondary} />
@@ -285,15 +285,21 @@ export const EnhancedWeatherWidget: React.FC<EnhancedWeatherWidgetProps> = ({
       </TouchableOpacity>
 
       <Modal visible={showDetails} onClose={() => setShowDetails(false)}>
-        <View style={styles.detailModal}>
+        <View style={styles.container}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Weather Details</Text>
-            <TouchableOpacity onPress={() => setShowDetails(false)}>
+            <TouchableOpacity onPress={() => setShowDetails(false)} style={styles.closeButton}>
               <Ionicons name="close" size={24} color={Colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView 
+            style={styles.content}
+            contentContainerStyle={styles.scrollViewContent}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={styles.currentWeatherDetail}>
               <Text style={styles.sectionTitle}>Current Weather</Text>
               <View style={styles.currentWeatherGrid}>
@@ -326,11 +332,9 @@ export const EnhancedWeatherWidget: React.FC<EnhancedWeatherWidgetProps> = ({
 
             <View style={styles.forecastSection}>
               <Text style={styles.sectionTitle}>3-Day Forecast</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={styles.forecastContainer}>
-                  {forecast.map(renderForecastDay)}
-                </View>
-              </ScrollView>
+              <View style={styles.forecastContainer}>
+                {forecast.map(renderForecastDay)}
+              </View>
             </View>
 
             <View style={styles.recommendationsSection}>
@@ -346,6 +350,10 @@ export const EnhancedWeatherWidget: React.FC<EnhancedWeatherWidgetProps> = ({
 
 const styles = StyleSheet.create({
   container: {
+    maxHeight: Layout.window.height * 0.9,
+  },
+
+  widgetContainer: {
     padding: Layout.spacing.md,
   },
 
@@ -427,9 +435,13 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 
-  // Modal styles
-  detailModal: {
-    maxHeight: Layout.window.height * 0.8,
+  // Modal styles  
+  content: {
+    maxHeight: Layout.window.height * 0.6,
+  },
+
+  scrollViewContent: {
+    paddingBottom: Layout.spacing.xl,
   },
 
   modalHeader: {
@@ -447,6 +459,10 @@ const styles = StyleSheet.create({
     fontSize: Fonts.xl,
     fontWeight: Fonts.bold,
     color: Colors.text,
+  },
+
+  closeButton: {
+    padding: Layout.spacing.xs,
   },
 
   sectionTitle: {
@@ -495,8 +511,14 @@ const styles = StyleSheet.create({
     marginBottom: Layout.spacing.xl,
   },
 
+  horizontalScroll: {
+    flexGrow: 0,
+  },
+
   forecastContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
 
   forecastDay: {
@@ -504,8 +526,8 @@ const styles = StyleSheet.create({
     padding: Layout.spacing.md,
     backgroundColor: Colors.backgroundCard,
     borderRadius: Layout.radius.md,
-    marginRight: Layout.spacing.sm,
-    minWidth: 120,
+    marginBottom: Layout.spacing.sm,
+    width: '32%',
   },
 
   forecastDate: {
